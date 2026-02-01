@@ -1,0 +1,190 @@
+/* ================= SECTION ================= */
+.achievers-section {
+    background-color: #000;
+    padding: 60px 5%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Inter', sans-serif;
+}
+
+/* ================= TITLE ================= */
+.achievers-title {
+    font-size: 48px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 60px;
+    text-align: center;
+    font-family: 'Montserrat Alternates', sans-serif;
+}
+
+.achievers-title span {
+    color: #d9cf9c;
+    /* Gold color */
+}
+
+/* ================= GRID ================= */
+.achievers-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 40px;
+    width: 100%;
+    max-width: 1400px;
+}
+
+/* ================= CARD ================= */
+.achiever-card {
+    position: relative;
+    width: 320px;
+    height: 380px;
+    background: #0a0a0a;
+    border: 2px solid #d9cf9c;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 30px 20px;
+    box-shadow: 0 0 20px rgba(217, 207, 156, 0.2);
+    overflow: hidden;
+}
+
+/* Gold background effect simulation */
+.achiever-card::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 150px;
+    background: radial-gradient(ellipse at center, rgba(217, 207, 156, 0.3) 0%, transparent 70%);
+    transform: translateY(-50%) rotate(-10deg);
+    pointer-events: none;
+}
+
+/* Top Logo Area (Placeholder for Medify logo if needed, using text for now or blank) */
+.ac-card-logo {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.1);
+    /* Placeholder for logo */
+    border-radius: 50%;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: #d9cf9c;
+    border: 1px solid #d9cf9c;
+}
+
+.congrats-text {
+    font-family: 'Montserrat Alternates', sans-serif;
+    color: #d9cf9c;
+    font-size: 22px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    text-align: center;
+    letter-spacing: 1px;
+    z-index: 2;
+}
+
+.exam-success-text {
+    color: #fff;
+    font-size: 14px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+    z-index: 2;
+}
+
+/* Student Image */
+.student-img-container {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    border: 3px solid #d9cf9c;
+    overflow: hidden;
+    margin-bottom: -20px;
+    /* Overlap with ribbon */
+    z-index: 2;
+    background: #222;
+}
+
+.student-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Ribbon */
+.name-ribbon {
+    background: linear-gradient(90deg, #bfae68 0%, #d9cf9c 50%, #bfae68 100%);
+    padding: 10px 30px;
+    position: relative;
+    z-index: 3;
+    clip-path: polygon(0 0, 100% 0, 95% 50%, 100% 100%, 0 100%, 5% 50%);
+    /* Ribbon shape */
+    width: 90%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.student-name {
+    color: #000;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 16px;
+    letter-spacing: 1px;
+    margin: 0;
+}
+
+/* Percentage */
+.percentage {
+    font-size: 38px;
+    font-weight: 800;
+    color: #d9cf9c;
+    z-index: 2;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    margin-bottom: 15px;
+}
+
+/* Footer text */
+.card-footer-text {
+    font-size: 9px;
+    color: #aaa;
+    text-align: center;
+    line-height: 1.4;
+    max-width: 90%;
+    z-index: 2;
+}
+
+/* ================= CONFETTI/PARTICLES (Optional CSS decoration) ================= */
+.particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: radial-gradient(#d9cf9c 1px, transparent 1px);
+    background-size: 20px 20px;
+    opacity: 0.1;
+    z-index: 1;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .achievers-title {
+        font-size: 32px;
+    }
+
+    .achiver-card {
+        width: 90%;
+    }
+}

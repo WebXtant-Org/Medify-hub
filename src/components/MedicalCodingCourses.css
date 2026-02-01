@@ -1,0 +1,158 @@
+/* ================= SECTION ================= */
+.mcc-section {
+    background-color: #d9cf9c;
+    padding: 80px 5%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', sans-serif;
+}
+
+/* ================= HEADER ================= */
+.mcc-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 1200px;
+}
+
+.mcc-caduceus-icon {
+    width: 80px;
+    height: auto;
+    flex-shrink: 0;
+    fill: #6b7280;
+    /* Dark grey snake color from image */
+}
+
+.mcc-title-container {
+    text-align: center;
+}
+
+.mcc-title {
+    font-family: 'Montserrat Alternates', sans-serif;
+    font-size: 48px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 2px #000;
+}
+
+.mcc-subtitle {
+    font-size: 20px;
+    color: #fff;
+    max-width: 800px;
+    margin: 0 auto 60px;
+    text-align: center;
+    line-height: 1.5;
+    text-shadow: 0.3px 0.3px 1px #000;
+}
+
+/* ==={============== CARDS GRID ================= */
+.mcc-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    width: 100%;
+    max-width: 1300px;
+}
+
+/* ================= CARD ================= */
+.mcc-card {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 20px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    transition: transform 0.3s ease;
+}
+
+.mcc-card-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.mcc-card:hover {
+    transform: translateY(-5px);
+}
+
+.mcc-card-icon {
+    width: 30px;
+    height: 40px;
+    stroke: #d9cf9c;
+    /* Fallback */
+    flex-shrink: 0;
+}
+
+.mcc-card-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+    margin-bottom: 0;
+}
+
+.mcc-card-desc {
+    font-size: 16px;
+    color: #333;
+    /* Dark text for description */
+    line-height: 1.6;
+    margin-bottom: 30px;
+    flex-grow: 1;
+}
+
+/* ================= BUTTON ================= */
+.mcc-btn {
+    background: #fff;
+    color: #d0c080;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s ease;
+}
+
+.mcc-btn:hover {
+    background: #f0f0f0;
+    gap: 15px;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 1024px) {
+    .mcc-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .mcc-title {
+        font-size: 36px;
+    }
+}
+
+@media (max-width: 768px) {
+    .mcc-header {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .mcc-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .mcc-title {
+        font-size: 32px;
+    }
+}

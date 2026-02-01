@@ -1,0 +1,170 @@
+/* ================= RESET ================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ================= BLACK BACKGROUND ================= */
+.ac-section {
+  min-height: 100vh;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 60px;
+  padding: 40px 0;
+}
+
+/* ================= GREY ROUNDED CONTAINER ================= */
+.ac-container {
+  width: 90%;
+  max-width: 1200px;
+  height: auto;
+  background: #b5b5b5;
+  border-radius: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 20px;
+}
+
+/* ================= ACHIEVEMENTS ================= */
+.achievements-area {
+  width: 100%;
+}
+
+.achievements-title {
+  font-size: 44px;
+  font-family: 'Montserrat Alternates';
+  font-weight: 500;
+  color: #000;
+  text-align: center;
+  margin-bottom: 36px;
+}
+
+.achievement-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+}
+
+.card {
+  background: #d9cf9c;
+  border-radius: 20px;
+  height: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-family: 'Inter';
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.card .icon {
+  margin-bottom: 10px;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card .icon img {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+}
+
+.card h3 {
+  font-size: 30px;
+  font-weight: 600;
+}
+
+.card p {
+  font-size: 30px;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.card .big {
+  font-size: 30px;
+}
+
+/* ================= CLIENTS ================= */
+.clients-area {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.clients-title {
+  font-size: 36px;
+  font-family: 'Montserrat Alternates';
+  font-weight: 500;
+  color: #fff;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+/* LOGO STRIP */
+.clients-box {
+  width: 100%;
+  height: 120px;
+  background: #9ca3af;
+  /* Light grey to match image */
+  border-radius: 0;
+  overflow: hidden;
+
+  display: flex;
+  align-items: center;
+}
+
+/* LOGO LOOP */
+.logo-track {
+  display: flex;
+  align-items: center;
+  gap: 50px;
+  animation: scroll 28s linear infinite;
+}
+
+.logo-track img {
+  height: 100px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+/* ================= ANIMATION ================= */
+@keyframes scroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 1024px) {
+  .achievement-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .achievements-title,
+  .clients-title {
+    font-size: 34px;
+  }
+}
+
+@media (max-width: 600px) {
+  .ac-container {
+    padding: 28px 24px;
+  }
+
+  .logo-track img {
+    height: 40px;
+  }
+}

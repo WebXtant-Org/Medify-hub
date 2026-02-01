@@ -1,0 +1,22 @@
+/* Minimal Global Reset */
+* {
+    box-sizing: border-box;
+}
+
+/* REQUIRED for smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Scroll padding to clear fixed navbar height */
+html,
+body {
+    scroll-padding-top: 100px;
+}
+
+/* Specific IDs for scroll margin as backup */
+#home,
+#about,
+#courses {
+    scroll-margin-top: 30px;
+}

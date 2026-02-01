@@ -1,0 +1,79 @@
+/* ================= SECTION ================= */
+.mv-section {
+    display: flex;
+    width: 100%;
+    min-height: 400px;
+
+}
+
+/* ================= BOXES ================= */
+.mv-box {
+    flex: 1;
+    padding: 80px 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+/* Mission Box (Left) */
+.mv-box.mission {
+    background-color: #808080;
+    /* Grey */
+}
+
+/* Vision Box (Right) */
+.mv-box.vision {
+    background-color: #d9cf9c;
+    /* Gold */
+}
+
+/* ================= TYPOGRAPHY ================= */
+.mv-title {
+    font-family: 'Montserrat Alternates', sans-serif;
+    font-size: 48px;
+    font-weight: 700;
+    margin-bottom: 30px;
+
+    /* Matches image "mission" */
+}
+
+/* Title Colors */
+.mv-box.mission .mv-title {
+    color: #d9cf9c;
+    /* Gold text on Grey */
+}
+
+.mv-box.vision .mv-title {
+    color: #fff;
+   
+    
+}
+
+
+.mv-text {
+    font-size: 18px;
+    line-height: 1.6;
+    max-width: 500px;
+}
+
+/* Text Colors */
+.mv-box.mission .mv-text {
+    color: #fff;
+}
+
+.mv-box.vision .mv-text {
+    color: #000;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+    .mv-section {
+        flex-direction: column;
+    }
+
+    .mv-box {
+        padding: 60px 30px;
+    }
+}

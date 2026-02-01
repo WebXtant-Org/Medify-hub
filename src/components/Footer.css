@@ -1,0 +1,149 @@
+/* ================= SECTION ================= */
+.footer-section {
+    background-color: #000;
+    color: #fff;
+    padding: 10px 5% ;
+    height: 60vh;
+    font-family: 'Inter', sans-serif;
+}
+
+/* ================= TITLE ================= */
+.footer-main-title {
+    text-align: center;
+    font-size: 36px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    font-family: 'Montserrat Alternates', sans-serif;
+}
+
+/* ================= CONTAINER ================= */
+.footer-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 10px;
+    max-width: 1400px;
+    margin: 0 auto 30px;
+    /* Reduced from 60px */
+}
+
+.footer-col {
+    flex: 1;
+    min-width: 300px;
+}
+
+/* Left Column - Brand */
+.footer-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.footer-logo {
+    width: 80px;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+.footer-company-name {
+    color: #d9cf9c;
+    /* Gold */
+    font-size: 16px;
+    font-weight: 500;
+    /* Regular/Medium */
+    margin-bottom: 40px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.footer-slogan {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #ccc;
+    max-width: 300px;
+}
+
+/* Center Column - Courses */
+.footer-courses {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.footer-col-title {
+    font-size: 18px;
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 5px;
+    margin-bottom: 30px;
+    color: #fff;
+}
+
+.footer-course-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.footer-course-list li {
+    font-size: 14px;
+    color: #eee;
+}
+
+/* Right Column - Contact */
+.footer-contact {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    /* Right align as per image visuals roughly, or left align for readability */
+    /* Image shows text right aligned or centered? Let's check. 
+       Actually standard implementation is usually left aligned text block, but maybe aligned to right side of screen.
+       Let's stick to standard left align for text content inside the right column. 
+    */
+    align-items: flex-start;
+}
+
+.contact-item {
+    margin-bottom: 20px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #eee;
+}
+
+.contact-label {
+    /* If needed distinctive styling */
+}
+
+/* ================= BOTTOM BAR ================= */
+.footer-bottom {
+    border-top: 1px solid #333;
+    padding-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #888;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 900px) {
+    .footer-container {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .footer-brand,
+    .footer-contact,
+    .footer-courses {
+        align-items: center;
+    }
+
+    .footer-bottom {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+}

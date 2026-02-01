@@ -1,0 +1,138 @@
+/* ================= SECTION ================= */
+.gallery-section {
+    background-color: #000;
+    padding: 60px 5%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', sans-serif;
+}
+
+/* ================= TITLE ================= */
+.gallery-title {
+    font-size: 48px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 60px;
+    text-align: center;
+    font-family: 'Montserrat Alternates', sans-serif;
+}
+
+.gallery-title span {
+    color: #d9cf9c;
+}
+
+/* ================= GRID ================= */
+.gallery-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    /* Default: Left narrow, Right wide */
+    grid-template-rows: repeat(2, 300px);
+    /* Fixed height rows for consistency */
+    gap: 30px;
+    width: 100%;
+    max-width: 1200px;
+}
+
+/* Row 2: Reverse the columns visual weight? 
+     CSS Grid columns are fixed, so we need to span or adjust items.
+     Actually, simpler approach: Use sub-grids or just place items explicitly.
+  */
+
+.gallery-item {
+    background: #ccc;
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+    transition: transform 0.3s ease;
+}
+
+.gallery-item:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 25px rgba(217, 207, 156, 0.3);
+}
+
+.gallery-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* ITEM SPECIFIC STYLES TO MATCH IMAGE
+     Row 1: Square (Left), Rectangle (Right)
+     Row 2: Rectangle (Left), Square (Right)
+  */
+
+/* Item 1: Top Left - Square-ish (or narrower) */
+.gallery-item:nth-child(1) {
+    grid-column: 1 / 2;
+    border: 3px solid #d9cf9c;
+    /* Gold border */
+}
+
+/* Item 2: Top Right - Wide */
+.gallery-item:nth-child(2) {
+    grid-column: 2 / 3;
+    border: none;
+}
+
+/* Item 3: Bottom Left - Wide */
+.gallery-item:nth-child(3) {
+    grid-column: 1 / 2;
+    /* Wait, we want this wide */
+    /* To switch width, we can't just switch columns if cols are fixed 1fr 1.5fr.
+        We need a different grid or just flexbox.
+        Let's switch to Flexbox for row-based control or define grid areas.
+     */
+}
+
+/* REVISION FOR GRID: */
+/* We will use a 12 column grid for flexibility */
+.gallery-grid {
+    grid-template-columns: repeat(5, 1fr);
+    /* 5 cols */
+    grid-template-rows: 300px 300px;
+}
+
+/* Row 1 */
+.gallery-item:nth-child(1) {
+    grid-column: span 2;
+    /* 2/5 width */
+    border: 3px solid #d9cf9c;
+}
+
+.gallery-item:nth-child(2) {
+    grid-column: span 3;
+    /* 3/5 width */
+}
+
+/* Row 2 */
+.gallery-item:nth-child(3) {
+    grid-column: span 3;
+    /* 3/5 width */
+    grid-row: 2;
+}
+
+.gallery-item:nth-child(4) {
+    grid-column: span 2;
+    /* 2/5 width */
+    grid-row: 2;
+    border: 3px solid #d9cf9c;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .gallery-grid {
+        display: flex;
+        flex-direction: column;
+        grid-template-rows: auto;
+    }
+
+    .gallery-item {
+        height: 250px;
+        width: 100%;
+    }
+}
