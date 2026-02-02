@@ -18,7 +18,7 @@
 .navbar-inner {
   max-width: 1400px;
   margin: 0 auto;
-  height:auto;
+  height: auto;
   padding: 0 32px;
   display: grid;
   grid-template-columns: auto 1fr auto;
@@ -90,8 +90,15 @@
   border-radius: 18px;
   font-size: 16px;
   font-weight: 600;
-  color: #fff;
+  color: #000;
+  /* Contrast black on gold */
   cursor: pointer;
+  transition: transform 0.2s, background 0.3s;
+}
+
+.apply-btn:hover {
+  background: #fff;
+  transform: translateY(-2px);
 }
 
 /* ================= HAMBURGER ================= */
@@ -134,6 +141,8 @@
 @media (max-width: 768px) {
   .navbar-inner {
     grid-template-columns: 1fr auto;
+    padding: 10px 20px;
+    /* Added vertical padding for better height */
   }
 
   .navbar-center {
@@ -142,6 +151,7 @@
 
   .apply-btn {
     display: none;
+    /* Hide desktop button in top row on mobile */
   }
 
   .hamburger {
@@ -155,10 +165,50 @@
   .mobile-menu:not(.open) {
     display: none;
   }
+
+  .mobile-apply-wrapper {
+    padding: 20px 32px 40px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .mobile-apply-btn {
+    display: block !important;
+    width: 100%;
+    max-width: none;
+    background: #d8c98b;
+    color: #000;
+    padding: 16px;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: 700;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(216, 201, 139, 0.4);
+  }
 }
 
 @media (max-width: 480px) {
+  .navbar-left {
+    flex-direction: row;
+    /* Align horizontal */
+    align-items: center;
+  
+  }
+
+  .navbar-logo {
+    width: 60px;
+    /* Increased from 40px */
+    height: auto;
+  }
+
   .navbar-title {
-    display: none;
+    display: block;
+    font-size: 14px;
+    /* Increased from 12px */
+    white-space: normal;
+    text-align: left;
+    /* Text aligns left next to logo */
+    padding-bottom: 0;
+    line-height: 1.2;
   }
 }

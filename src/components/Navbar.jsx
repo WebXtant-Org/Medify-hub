@@ -95,6 +95,9 @@ const Navbar = () => {
         <span onClick={() => handleScroll("about")}>About Us</span>
         <span onClick={() => handleScroll("courses")}>Course</span>
         <Link to="/contact" onClick={() => setOpen(false)}>Contact</Link>
+        <div className="mobile-apply-wrapper">
+          <button className="apply-btn mobile-apply-btn">Apply Now</button>
+        </div>
       </div>
     </header>
   );
