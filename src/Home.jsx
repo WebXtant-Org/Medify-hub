@@ -8,6 +8,7 @@ import Gallery from './components/Gallery'
 import AboutUs from './components/AboutUs'
 import WhatWeOffer from './components/WhatWeOffer'
 import MissionVision from './components/MissionVision'
+import Footer from './components/Footer'
 const App = () => {
   return (
     <div>
@@ -25,6 +26,9 @@ const App = () => {
       </div>
       <WhatWeOffer />
       <MissionVision />
+      <div id="contact">
+        <Footer />
+      </div>
     </div>
   )
 }

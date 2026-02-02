@@ -13,7 +13,7 @@ const Navbar = () => {
     return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
   };
 
-  const smoothScrollTo = (element, duration = 1500) => {
+  const smoothScrollTo = (element, duration = 1000) => {
     const start = window.scrollY;
     const target = element.getBoundingClientRect().top + window.scrollY - 100; // -100 for offset
     const distance = target - start;
@@ -69,7 +69,7 @@ const Navbar = () => {
           <span onClick={() => handleScroll("home")} className="nav-link">Home</span>
           <span onClick={() => handleScroll("about")} className="nav-link">About Us</span>
           <span onClick={() => handleScroll("courses")} className="nav-link">Course</span>
-          <Link to="/contact" className="nav-link">Contact</Link>
+          <span onClick={() => handleScroll("contact")} className="nav-link">Contact</span>
         </nav>
 
         {/* RIGHT */}
