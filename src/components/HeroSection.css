@@ -16,14 +16,18 @@
 }
 
 /* Beige content box */
+/* Beige content box */
 .hero-overlay {
   background: #d9cf9c;
   max-width: 780px;
-  height: 300px;
+  height: auto;
+  /* Changed from fixed 300px to avoid overflow issues */
+  min-height: 300px;
+  /* Optional: keep minimum size */
   padding: 48px 56px;
   border-radius: 6px;
   text-align: center;
-  margin-top: 2rem;
+  margin-top: 5rem;
 }
 
 /* Heading */
@@ -69,7 +73,7 @@
 /* Dots */
 .hero-dots {
   position: absolute;
-  bottom: 30px;
+  bottom: 10px;
   display: flex;
   gap: 14px;
 }
@@ -78,7 +82,7 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: rgba(218, 216, 216, 0.5);
+  background: rgba(0, 0, 0, 0.5);
   cursor: pointer;
 }
 
