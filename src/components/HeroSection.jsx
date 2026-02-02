@@ -37,11 +37,12 @@ const HeroCarousel = () => {
             successful healthcare careers through world-class medical coding
             education.
           </p>
-          <div>
-            <button className="hero-btn">
-              View Our Courses <span>→</span>
-            </button>
-          </div>
+        </div>
+
+        <div>
+          <button className="hero-btn">
+            View Our Courses <span>→</span>
+          </button>
         </div>
 
 
