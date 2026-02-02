@@ -13,7 +13,7 @@ const Navbar = () => {
     return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
   };
 
-  const smoothScrollTo = (element, duration = 1000) => {
+  const smoothScrollTo = (element, duration = 800) => {
     const start = window.scrollY;
     const target = element.getBoundingClientRect().top + window.scrollY - 100; // -100 for offset
     const distance = target - start;
@@ -40,7 +40,7 @@ const Navbar = () => {
       const element = document.getElementById(id);
       if (element) {
         // Use custom slow scroll instead of native
-        smoothScrollTo(element, 2000); // 2 seconds duration for "slow motion" feel
+        smoothScrollTo(element, 1500); // 1.5 seconds duration
       } else {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
@@ -48,7 +48,7 @@ const Navbar = () => {
       navigate(`/#${id}`);
       setTimeout(() => {
         const element = document.getElementById(id);
-        if (element) smoothScrollTo(element, 2000);
+        if (element) smoothScrollTo(element, 1500);
       }, 100);
     }
   };
