@@ -1,29 +1,10 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { courses } from '../data/courses';
 import './MedicalCodingCourses.css';
 
 const MedicalCodingCourses = () => {
-    const courses = [
-        {
-            title: "Basic Medical Coding Training (BMCT)",
-            desc: "BMCT builds strong biomedical knowledge, clinical technology skills, patient care expertise, and growing career opportunities in healthcare."
-        },
-        {
-            title: "Advanced Medical Coding Training (AMCT)",
-            desc: "AMCT certification builds advanced medical coding skills, clinical documentation knowledge, healthcare compliance expertise, and strong global career opportunities."
-        },
-        {
-            title: "Certified Professional Coder (CPC)",
-            desc: "CPC certification builds strong medical coding expertise, career credibility, global opportunities, healthcare compliance knowledge, and professional growth."
-        },
-        {
-            title: "Certified Coding Specialist (CCS)",
-            desc: "CCS certification proves advanced hospital coding expertise, inpatient accuracy, strong compliance knowledge, and high-demand healthcare career growth"
-        },
-        {
-            title: "Certified Risk adjustment Coder (CRC)",
-            desc: "CRC certification builds risk adjustment expertise, data accuracy skills, compliance knowledge, and strong career growth in healthcare."
-        }
-    ];
+
 
     return (
         <section className="mcc-section">
@@ -50,7 +31,7 @@ const MedicalCodingCourses = () => {
                             <h3 className="mcc-card-title">{course.title}</h3>
                         </div>
                         <p className="mcc-card-desc">{course.desc}</p>
-                        <button className="mcc-btn">View Course <span>&rarr;</span></button>
+                        <Link to={`/course/${course.id}`} className="mcc-btn">View Course <span>&rarr;</span></Link>
                     </div>
                 ))}
             </div>

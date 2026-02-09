@@ -4,10 +4,10 @@ import './Gallery.css';
 const Gallery = () => {
     // Placeholder images from placehold.co (lighter grey background, no text if possible or simple text)
     const images = [
-        "https://placehold.co/400x400/e0e0e0/e0e0e0", // Square-ish
+        "/images/gallery-small-1.jpg", // Square-ish
         "https://placehold.co/600x400/e0e0e0/e0e0e0", // Wide
         "https://placehold.co/600x400/e0e0e0/e0e0e0", // Wide
-        "https://placehold.co/400x400/e0e0e0/e0e0e0", // Square-ish
+        "/images/gallery-small-2.jpg", // Square-ish
     ];
 
     return (

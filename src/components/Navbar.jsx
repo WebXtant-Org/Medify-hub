@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./Navbar.css";
+import RegistrationModal from "./RegistrationModal";
 
 
 const Navbar = () => {
@@ -39,8 +40,7 @@ const Navbar = () => {
     if (location.pathname === "/") {
       const element = document.getElementById(id);
       if (element) {
-        // Use custom slow scroll instead of native
-        smoothScrollTo(element, 1500); // 1.5 seconds duration
+        smoothScrollTo(element, 1500);
       } else {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
@@ -53,53 +53,59 @@ const Navbar = () => {
     }
   };
 
+  const [openModal, setOpenModal] = useState(false);
+
   return (
-    <header className="navbar">
-      <div className="navbar-inner">
-        {/* LEFT */}
-        <div className="navbar-left">
-          <img src='images/Institute Logo.jpeg' alt="Medify Hub Logo" className="navbar-logo" />
-          <span className="navbar-title">
-            MEDIFY HUB HEALTHCARE SOLUTION
-          </span>
+    <>
+      <header className="navbar">
+        <div className="navbar-inner">
+          {/* LEFT */}
+          <div className="navbar-left">
+            <img src='images/Institute Logo.jpeg' alt="Medify Hub Logo" className="navbar-logo" />
+            <span className="navbar-title">
+              MEDIFY HUB HEALTHCARE SOLUTION
+            </span>
+          </div>
+
+          {/* CENTER (Desktop only) */}
+          <nav className="navbar-center">
+            <span onClick={() => handleScroll("home")} className="nav-link">Home</span>
+            <span onClick={() => handleScroll("about")} className="nav-link">About Us</span>
+            <span onClick={() => handleScroll("courses")} className="nav-link">Course</span>
+            <span onClick={() => handleScroll("contact")} className="nav-link">Contact</span>
+          </nav>
+
+          {/* RIGHT */}
+          <div className="navbar-right">
+            <button className="apply-btn" onClick={() => setOpenModal(true)}>Apply Now</button>
+
+            {/* Hamburger */}
+            <button
+              className="hamburger"
+              onClick={() => setOpen(!open)}
+              aria-label="Menu"
+            >
+              <span />
+              <span />
+              <span />
+            </button>
+          </div>
         </div>
 
-        {/* CENTER (Desktop only) */}
-        <nav className="navbar-center">
-          <span onClick={() => handleScroll("home")} className="nav-link">Home</span>
-          <span onClick={() => handleScroll("about")} className="nav-link">About Us</span>
-          <span onClick={() => handleScroll("courses")} className="nav-link">Course</span>
-          <span onClick={() => handleScroll("contact")} className="nav-link">Contact</span>
-        </nav>
-
-        {/* RIGHT */}
-        <div className="navbar-right">
-          <button className="apply-btn">Apply Now</button>
-
-          {/* Hamburger */}
-          <button
-            className="hamburger"
-            onClick={() => setOpen(!open)}
-            aria-label="Menu"
-          >
-            <span />
-            <span />
-            <span />
-          </button>
+        {/* Mobile Menu */}
+        <div className={`mobile-menu ${open ? "open" : ""}`}>
+          <span onClick={() => handleScroll("home")}>Home</span>
+          <span onClick={() => handleScroll("about")}>About Us</span>
+          <span onClick={() => handleScroll("courses")}>Course</span>
+          <Link to="/contact" onClick={() => setOpen(false)}>Contact</Link>
+          <div className="mobile-apply-wrapper">
+            <button className="apply-btn mobile-apply-btn" onClick={() => { setOpenModal(true); setOpen(false); }}>Apply Now</button>
+          </div>
         </div>
-      </div>
+      </header>
 
-      {/* Mobile Menu */}
-      <div className={`mobile-menu ${open ? "open" : ""}`}>
-        <span onClick={() => handleScroll("home")}>Home</span>
-        <span onClick={() => handleScroll("about")}>About Us</span>
-        <span onClick={() => handleScroll("courses")}>Course</span>
-        <Link to="/contact" onClick={() => setOpen(false)}>Contact</Link>
-        <div className="mobile-apply-wrapper">
-          <button className="apply-btn mobile-apply-btn">Apply Now</button>
-        </div>
-      </div>
-    </header>
+      <RegistrationModal isOpen={openModal} onClose={() => setOpenModal(false)} />
+    </>
   );
 };
 
