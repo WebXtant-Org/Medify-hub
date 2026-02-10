@@ -60,6 +60,11 @@
 
 /* ================= RESPONSIVE ================= */
 @media (max-width: 900px) {
+    .about-section {
+        padding: 40px 5%;
+        min-height: auto;
+    }
+
     .about-container {
         flex-direction: column;
         gap: 40px;
@@ -78,5 +83,11 @@
     .about-text {
         text-align: center;
         /* Or keep justify if preferred */
+    }
+
+    .about-img {
+        height: auto;
+        max-height: 340px;
+        object-fit: cover;
     }
 }

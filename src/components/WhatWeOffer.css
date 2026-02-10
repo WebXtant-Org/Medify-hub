@@ -115,6 +115,12 @@
 
 /* ================= RESPONSIVE ================= */
 @media (max-width: 768px) {
+    .wwo-section {
+        padding: 40px 16px;
+        min-height: auto;
+        align-items: flex-start;
+    }
+
     .wwo-card-container {
         padding: 40px 20px;
     }

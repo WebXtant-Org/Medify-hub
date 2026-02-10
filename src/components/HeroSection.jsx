@@ -49,10 +49,14 @@ const HeroCarousel = () => {
     <div>
       <section className="hero">
         {slides.map((slide, i) => (
-          <div
+          <img
             key={i}
+            src={slide}
+            alt=""
             className={`hero-slide ${i === index ? "active" : ""}`}
-            style={{ backgroundImage: `url(${slide})` }}
+            loading="eager"
+            fetchpriority={i === 0 ? "high" : "auto"}
+            decoding="async"
           />
         ))}
 
