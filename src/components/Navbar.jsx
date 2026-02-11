@@ -40,7 +40,7 @@ const Navbar = () => {
     if (location.pathname === "/") {
       const element = document.getElementById(id);
       if (element) {
-        smoothScrollTo(element, 1500);
+        smoothScrollTo(element, 800);
       } else {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
@@ -48,7 +48,7 @@ const Navbar = () => {
       navigate(`/#${id}`);
       setTimeout(() => {
         const element = document.getElementById(id);
-        if (element) smoothScrollTo(element, 1500);
+        if (element) smoothScrollTo(element, 800);
       }, 100);
     }
   };
