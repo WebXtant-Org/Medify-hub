@@ -80,7 +80,7 @@ const HeroCarousel = () => {
               onClick={() => {
                 const element = document.getElementById('courses');
                 if (element) {
-                  smoothScrollTo(element, 2000); // 2 seconds duration
+                  smoothScrollTo(element, 800); // reduced to 800ms
                 }
               }}
             >
