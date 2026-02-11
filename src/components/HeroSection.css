@@ -9,6 +9,7 @@
   align-items: center;
   padding-top: 0;
   overflow: hidden;
+  background-color: #d9cf9c;
   /* Ensure slides don't overflow */
 }
 

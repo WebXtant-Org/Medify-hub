@@ -55,8 +55,7 @@ const HeroCarousel = () => {
             alt=""
             className={`hero-slide ${i === index ? "active" : ""}`}
             loading="eager"
-            fetchpriority={i === 0 ? "high" : "auto"}
-            decoding="async"
+            fetchpriority="high"
           />
         ))}
 

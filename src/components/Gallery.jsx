@@ -5,6 +5,8 @@ const Gallery = () => {
     // Placeholder images from placehold.co (lighter grey background, no text if possible or simple text)
     const images = [
         "/images/gallery-small-1.jpg", // Square-ish
+        // "https://placehold.co/600x400/e0e0e0/e0e0e0",
+        // "https://placehold.co/600x400/e0e0e0/e0e0e0", 
         "/images/gallery-small-2.jpg", // Square-ish
     ];
 

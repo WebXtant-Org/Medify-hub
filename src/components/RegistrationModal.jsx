@@ -111,9 +111,11 @@ const RegistrationModal = ({ isOpen, onClose }) => {
                             value={formData.course}
                             onChange={handleChange}
                         >
-                            <option value="Medical Coding">Medical Coding</option>
-                            <option value="Medical Billing">Medical Billing</option>
-                            <option value="IP DRG">IP DRG</option>
+                            <option value="Basic Medical Coding">Basic Medical Coding</option>
+                            <option value="Advanced Medical Coding">Advanced Medical Coding</option>
+                            <option value="Certified Professional Coder">Certified Professional Coder</option>
+                            <option value="Certified Risk Adjustment Coder">Certified Risk Adjustment Coder</option>
+                            <option value="Certified Coding Specialist">Certified Coding Specialist</option>
                         </select>
                     </div>
 
