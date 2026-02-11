@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import "./HeroSection.css";
 
 const slides = [
-  "/images/hero1.jpeg",
-  "/images/hero2.jpeg",
-  "/images/hero3.jpeg",
+  "/images/hero1.webp",
+  "/images/hero2.webp",
+  "/images/hero3.webp",
 ];
 
 const HeroCarousel = () => {
