@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import "./HeroSection.css";
 
 const slides = [
-  "/images/hero1.jpeg",
-  "/images/hero2.jpeg",
-  "/images/hero3.jpeg",
+  "/images/hero1.webp",
+  "/images/hero2.webp",
+  "/images/hero3.webp",
 ];
 
 const HeroCarousel = () => {
@@ -49,10 +49,13 @@ const HeroCarousel = () => {
     <div>
       <section className="hero">
         {slides.map((slide, i) => (
-          <div
+          <img
             key={i}
+            src={slide}
+            alt=""
             className={`hero-slide ${i === index ? "active" : ""}`}
-            style={{ backgroundImage: `url(${slide})` }}
+            loading="eager"
+            fetchpriority="high"
           />
         ))}
 
@@ -77,7 +80,7 @@ const HeroCarousel = () => {
               onClick={() => {
                 const element = document.getElementById('courses');
                 if (element) {
-                  smoothScrollTo(element, 2000); // 2 seconds duration
+                  smoothScrollTo(element, 800); // reduced to 800ms
                 }
               }}
             >
