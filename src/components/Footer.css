@@ -97,24 +97,124 @@
 .footer-contact {
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
-    /* Right align as per image visuals roughly, or left align for readability */
-    /* Image shows text right aligned or centered? Let's check. 
-       Actually standard implementation is usually left aligned text block, but maybe aligned to right side of screen.
-       Let's stick to standard left align for text content inside the right column. 
-    */
     align-items: flex-start;
 }
 
-.contact-item {
-    margin-bottom: 20px;
-    font-size: 14px;
-    line-height: 1.6;
-    color: #eee;
+/* Highlight the 'Get in Touch' title specifically */
+.footer-contact .footer-col-title {
+    color: white;
+    /* Gold color */
+    font-size: 17px;
+    /* Larger */
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding-bottom: 5px;
+    display: inline-block;
+    text-align: center;
 }
 
-.contact-label {
-    /* If needed distinctive styling */
+.contact-item-new {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 5px;
+    gap: 15px;
+}
+
+.contact-icon-box {
+    width: 35px;
+    height: 35px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.contact-item-new:hover .contact-icon-box {
+    background: #fff;
+    transform: scale(1.1);
+}
+
+.footer-icon {
+    width: 20px;
+    height: 20px;
+    fill: #ddd;
+    transition: fill 0.3s ease;
+}
+
+.contact-item-new:hover .footer-icon.icon-phone {
+    fill: #2ecc71;
+}
+
+.contact-item-new:hover .footer-icon.icon-email {
+    fill: #e74c3c;
+}
+
+.contact-item-new:hover .footer-icon.icon-location {
+    fill: #3498db;
+}
+
+.contact-text {
+    font-size: 16px;
+    /* Increased from 14px */
+    line-height: 1.6;
+    color: #ffffff;
+    /* Pure white for max contrast */
+    font-weight: 200;
+    /* Bolder text */
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    /* Subtle shadow for readability if needed */
+}
+
+/* Make the contact numbers/email pop significantly */
+.contact-text p,
+.contact-link {
+    color: #ffeb3b;
+    /* Bright Yellow/Gold for immediate attention */
+    font-weight: 200;
+    font-size: 16px;
+    letter-spacing: 0.5px;
+}
+
+
+
+.contact-link {
+    text-decoration: none;
+    transition: color 0.3s;
+    word-break: break-all;
+}
+
+.contact-link:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+/* Social Media Button */
+.contact-social-new {
+    margin-top: 10px;
+}
+
+.social-icon-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    border-radius: 30px;
+    text-decoration: none;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.social-icon-link .footer-icon {
+    fill: white;
+    width: 20px;
+    height: 20px;
 }
 
 /* ================= BOTTOM BAR ================= */
@@ -125,6 +225,18 @@
     justify-content: space-between;
     font-size: 12px;
     color: #888;
+}
+
+.developer-link {
+    color: #d9cf9c;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+.developer-link:hover {
+    color: #fff;
+    text-decoration: underline;
 }
 
 /* ================= RESPONSIVE ================= */

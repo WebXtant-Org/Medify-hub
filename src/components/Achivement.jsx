@@ -52,8 +52,7 @@ const AchievementsClients = () => {
       {/* BOTTOM: CLIENTS */}
       <div className="clients-area">
         <h2 className="clients-title">
-          Our Trusted & Supportive Clients
-        </h2>
+         Medical Coding Companies</h2>
 
         <div className="clients-box">
           <div className="logo-track">
