@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { courses } from '../data/courses';
 import RegistrationModal from './RegistrationModal';
+import WhatsAppFloating from './WhatsAppFloating';
 import './CourseDetails.css';
 
 const CourseDetails = () => {
@@ -126,6 +127,7 @@ const CourseDetails = () => {
             </div>
 
             <RegistrationModal isOpen={openModal} onClose={() => setOpenModal(false)} />
+            <WhatsAppFloating phone="919999999999" />
         </div>
     );
 };
