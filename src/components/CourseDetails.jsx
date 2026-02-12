@@ -127,7 +127,7 @@ const CourseDetails = () => {
             </div>
 
             <RegistrationModal isOpen={openModal} onClose={() => setOpenModal(false)} />
-            <WhatsAppFloating phone="919999999999" />
+            <WhatsAppFloating phone="9952188735" />
         </div>
     );
 };
