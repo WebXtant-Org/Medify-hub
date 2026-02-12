@@ -9,6 +9,7 @@ import AboutUs from './components/AboutUs'
 import WhatWeOffer from './components/WhatWeOffer'
 import MissionVision from './components/MissionVision'
 import Footer from './components/Footer'
+import WhatsAppFloating from './components/WhatsAppFloating'
 const App = () => {
   return (
     <div>
@@ -29,6 +30,7 @@ const App = () => {
       <div id="contact">
         <Footer />
       </div>
+      <WhatsAppFloating phone="9952188735" />
     </div>
   )
 }
