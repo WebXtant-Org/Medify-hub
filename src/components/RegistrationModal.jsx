@@ -33,8 +33,8 @@ const RegistrationModal = ({ isOpen, onClose }) => {
             });
 
             await fetch(
-              "https://script.google.com/macros/s/AKfycbyj_ezNu3ENRj2F9s2xylrXehqDY-iHzOX2ZzqLP2TrWq0P91Hzb0mSTtGBj2IfPqRw/exec",
-              
+                "https://script.google.com/macros/s/AKfycbyj_ezNu3ENRj2F9s2xylrXehqDY-iHzOX2ZzqLP2TrWq0P91Hzb0mSTtGBj2IfPqRw/exec",
+
 
                 {
                     method: "POST",
@@ -116,6 +116,7 @@ const RegistrationModal = ({ isOpen, onClose }) => {
                             <option value="Certified Professional Coder">Certified Professional Coder</option>
                             <option value="Certified Risk Adjustment Coder">Certified Risk Adjustment Coder</option>
                             <option value="Certified Coding Specialist">Certified Coding Specialist</option>
+                            <option value="UAE Medical Coding Course">UAE Medical Coding Course</option>
                         </select>
                     </div>
 

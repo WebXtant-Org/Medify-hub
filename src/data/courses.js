@@ -170,5 +170,38 @@ export const courses = [
                 "Compliance & Documentation"
             ]
         }
+    },
+    {
+        id: "uae-mcc",
+        title: "UAE Medical Coding Course",
+        desc: "Specially designed for students who want to build a career in the healthcare industry of the United Arab Emirates.",
+        fullDescription: "Our UAE Medical Coding Course is specially designed for students who want to build a career in the healthcare industry of the United Arab Emirates. This course provides in-depth training on international coding systems along with UAE healthcare regulations, insurance claim processing, and payer-specific billing guidelines followed across hospitals and insurance companies in the UAE.",
+        details: {
+            duration: "3 to 6 Months (Regular / Fast Track / Weekend)",
+            eligibility: "Life Science Graduates, Medical & Paramedical Students, Nursing & Pharmacy Graduates, Healthcare Professionals",
+            curriculum: [
+                "Module 1: Medical Terminology & Anatomy",
+                "Module 2: International Coding Systems (ICD, CPT, HCPCS)",
+                "Module 3: UAE Healthcare Regulations (DHA, DOH, MOH)",
+                "Module 4: UAE Insurance & Billing Process",
+                "Module 5: Practical Training (Real-time cases)"
+            ],
+            careerPath: "Medical Coder, Insurance Claims Analyst, Revenue Cycle Executive, Coding Auditor"
+        },
+        highlights: [
+            "Experienced Trainers",
+            "Case Study Based Training",
+            "Certification Exam Guidance",
+            "Resume Preparation",
+            "Interview Support",
+            "Placement Assistance"
+        ],
+        focusAreas: [
+            "UAE Healthcare System Workflow",
+            "ICD, CPT, and HCPCS Coding",
+            "UAE Insurance Claim Lifecycle",
+            "Payer-Specific Billing Guidelines",
+            "Audit & Compliance Requirements"
+        ]
     }
 ];
