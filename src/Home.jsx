@@ -10,6 +10,7 @@ import WhatWeOffer from './components/WhatWeOffer'
 import MissionVision from './components/MissionVision'
 import Footer from './components/Footer'
 import WhatsAppFloating from './components/WhatsAppFloating'
+import Certification from './components/Certification'
 const App = () => {
   return (
     <div>
@@ -21,11 +22,12 @@ const App = () => {
         <MedicalCodingCourses />
       </div>
       <Achievers />
-      <Gallery />
       <div id="about">
         <AboutUs />
       </div>
       <WhatWeOffer />
+      <Gallery />
+      <Certification />
       <MissionVision />
       <div id="contact">
         <Footer />

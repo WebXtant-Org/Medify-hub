@@ -34,7 +34,7 @@ const AchievementsClients = () => {
 
             <div className="card">
               <div className="icon"><img src="/images/Traine.png" alt="" /> </div>
-              <h3>1,675+</h3>
+              <h3>1,843</h3>
               <p>Trainees Trained</p>
             </div>
 

@@ -72,6 +72,7 @@ const Navbar = () => {
             <span onClick={() => handleScroll("home")} className="nav-link">Home</span>
             <span onClick={() => handleScroll("about")} className="nav-link">About Us</span>
             <span onClick={() => handleScroll("courses")} className="nav-link">Course</span>
+            <span onClick={() => handleScroll("gallery")} className="nav-link">Gallery</span>
             <span onClick={() => handleScroll("contact")} className="nav-link">Contact</span>
           </nav>
 
@@ -97,6 +98,7 @@ const Navbar = () => {
           <span onClick={() => handleScroll("home")}>Home</span>
           <span onClick={() => handleScroll("about")}>About Us</span>
           <span onClick={() => handleScroll("courses")}>Course</span>
+          <span onClick={() => handleScroll("gallery")}>Gallery</span>
           <span onClick={() => handleScroll("contact")}>contact</span>
           <div className="mobile-apply-wrapper">
             <button className="apply-btn mobile-apply-btn" onClick={() => { setOpenModal(true); setOpen(false); }}>Apply Now</button>

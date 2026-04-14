@@ -7,6 +7,7 @@ const achieversData = [
     { img: 'images/WhatsApp Image 2026-02-01 at 7.08.56 PM (1).jpeg' },
     { img: 'images/WhatsApp Image 2026-02-01 at 7.08.56 PM.jpeg' },
     { img: 'images/WhatsApp Image 2026-02-01 at 7.08.55 PM.jpeg' },
+    { img: 'images/fathima_achiever.png' },
 ];
 
 const Achievers = () => {

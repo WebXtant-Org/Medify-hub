@@ -43,8 +43,7 @@ const Footer = () => {
                             </svg>
                         </div>
                         <div className="contact-text">
-                            <p>9952188735, 8946089533</p>
-                            <p>8438174362</p>
+                            <p>9952188735, 8438174362</p>
                         </div>
                     </div>
 
