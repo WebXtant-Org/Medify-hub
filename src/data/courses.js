@@ -5,7 +5,7 @@ export const courses = [
         desc: "Start Your Career in Medical Coding from Scratch. Designed for beginners to build strong foundational knowledge.",
         fullDescription: "The Basic Medical Coding Training (BMCT) program is designed for beginners who want to build strong foundational knowledge in medical coding. It is ideal for freshers and acts as a stepping stone into the healthcare IT industry.",
         details: {
-            duration: "3 Months",
+            duration: "45 Days",
             eligibility: "Life Science Graduates, Nursing/Pharmacy Students, Paramedical Graduates, Freshers",
             curriculum: [
                 "Medical Terminology",
@@ -30,7 +30,7 @@ export const courses = [
         desc: "Upgrade Your Coding Knowledge to Industry Level. Designed to strengthen coding expertise beyond basic certification.",
         fullDescription: "The Advanced Medical Coding Training (AMCT) program is designed to strengthen coding expertise beyond basic certification levels and prepare candidates for real-time industry projects.",
         details: {
-            duration: "3-4 Months",
+            duration: "60 Days",
             eligibility: "Life Science Graduates, Completed BMCT or equivalent",
             curriculum: [
                 "Multi-Specialty Coding",
@@ -61,7 +61,7 @@ export const courses = [
         desc: "Build Your Career in the Global Healthcare Industry. Become a Globally Recognized Medical Coding Professional.",
         fullDescription: "The Certified Professional Coder (CPC) certification, accredited by AAPC, is the most respected credential in the medical coding field. This certification proves your expertise in converting medical reports into standardized codes used worldwide in healthcare billing and insurance processing. With CPC certification, you can unlock high-demand career opportunities in hospitals, insurance companies, healthcare BPOs, and global medical coding firms.",
         details: {
-            duration: "4-5 Months (2 Hours/Session)",
+            duration: "30 Days",
             eligibility: "Life Science Graduates, Medical & Paramedical Students, Pharmacy & Nursing Graduates",
             curriculum: [
                 "Medical Terminology & Anatomy",
