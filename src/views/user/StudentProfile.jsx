@@ -1,19 +1,18 @@
 'use client'
 
+import { useEffect, useState } from 'react'
+
 import Grid from '@mui/material/Grid2'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import Avatar from '@mui/material/Avatar'
-import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
-
 import Chip from '@mui/material/Chip'
-
 import CardHeader from '@mui/material/CardHeader'
 
-import { useEffect, useState } from 'react'
 import { studentService } from '@/api/studentServices'
+import CustomTextField from '@core/components/mui/TextField'
 
 const StudentProfile = () => {
   const [profile, setProfile] = useState(null)
@@ -105,6 +104,5 @@ const StudentProfile = () => {
     </Grid>
   )
 }
-
 
 export default StudentProfile

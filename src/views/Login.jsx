@@ -185,12 +185,7 @@ return
         })
       }, 1000)
 
-      if (res.devOTP) {
-        setOtp(res.devOTP)
-        showToast(`DEV MODE: OTP ${res.devOTP} pre-filled!`)
-      } else {
-        showToast('OTP sent to your email! 📧')
-      }
+      showToast('OTP sent to your personal email! 📧')
     } catch (err) {
       showToast(err.message || 'Failed to send OTP', 'error')
     } finally {
@@ -251,7 +246,9 @@ return
 
       handleRedirect(res)
     } catch (err) {
-      setErrorState({ message: [err.message] })
+      const errorMsg = err.message || 'Invalid email or password'
+      setErrorState({ message: [errorMsg] })
+      showToast(errorMsg, 'error')
     } finally {
       setIsLoading(false)
     }
@@ -503,7 +500,7 @@ return
                     </Button>
                   </div>
 
-                  <Button variant='text' size='small' onClick={() => setStudentStep(2)} disabled={isLoading}>
+                  <Button variant='text' size='small' onClick={() => setStudentStep(1)} disabled={isLoading}>
                     Go Back
                   </Button>
                 </>

@@ -1,11 +1,17 @@
 'use client'
 
+// Next Imports
+import Link from 'next/link'
+
 // Third-party Imports
 import classnames from 'classnames'
 
-// Component Imports
+// MUI Imports
 import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button'
+import Tooltip from '@mui/material/Tooltip'
 
+// Component Imports
 import NavToggle from './NavToggle'
 import ModeDropdown from '@components/layout/shared/ModeDropdown'
 import NotificationsDropdown from '@components/layout/shared/NotificationsDropdown'
@@ -53,11 +59,24 @@ const NavbarContent = () => {
             Hello <span className='animate-wave'>👋</span>
           </Typography>
           <Typography variant='h6' color='textSecondary' className='hidden sm:block'>
-            Welcome back, {user?.name?.split(' ')[0] || 'Admin'}
+            Welcome back, {user?.name?.split(' ')[0] || 'User'}
           </Typography>
         </div>
       </div>
-      <div className='flex items-center'>
+      <div className='flex items-center gap-2'>
+        <Tooltip title='Back to Landing Page'>
+          <Button 
+            component={Link} 
+            href='/' 
+            variant='tonal' 
+            size='small' 
+            color='secondary'
+            startIcon={<i className='tabler-world' />}
+            className='hidden md:flex'
+          >
+            Back to Site
+          </Button>
+        </Tooltip>
         <ModeDropdown />
         <NotificationsDropdown notifications={notifications} />
         <UserDropdown />

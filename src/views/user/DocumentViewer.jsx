@@ -1,103 +1,177 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
+import CircularProgress from '@mui/material/CircularProgress'
+import IconButton from '@mui/material/IconButton'
 
 import { useAuth } from '@/contexts/AuthContext'
+import { studentService } from '@/api/studentServices'
 
 const DocumentViewer = () => {
+  const searchParams = useSearchParams()
+  const materialId = searchParams.get('id')
+  const router = useRouter()
+  
   const { user, appSettings } = useAuth()
   const [timestamp, setTimestamp] = useState('')
+  const [material, setMaterial] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  const fetchMaterial = useCallback(async () => {
+    if (!materialId) return
+    try {
+      setLoading(true)
+      const data = await studentService.getMaterials()
+      const current = data.find(m => m._id === materialId)
+      setMaterial(current)
+    } catch (error) {
+      console.error('Failed to fetch material:', error)
+    } finally {
+      setLoading(false)
+    }
+  }, [materialId])
+
+  useEffect(() => {
+    fetchMaterial()
+  }, [fetchMaterial])
 
   useEffect(() => {
     setTimestamp(new Date().toLocaleString())
-
-    const interval = setInterval(() => {
-      setTimestamp(new Date().toLocaleString())
-    }, 1000)
-
+    const interval = setInterval(() => setTimestamp(new Date().toLocaleString()), 1000)
     return () => clearInterval(interval)
   }, [])
 
+  // Security Measures
   useEffect(() => {
-    const handleContextMenu = e => {
-      e.preventDefault()
-    }
-
+    const handleContextMenu = e => e.preventDefault()
     const handleKeyDown = e => {
-      // Disable Ctrl+S, Ctrl+P, etc.
+      // Disable Print (Ctrl+P), Save (Ctrl+S), Copy (Ctrl+C), DevTools (F12)
       if (
         (e.ctrlKey || e.metaKey) &&
-        (e.key === 's' || e.key === 'S' || e.key === 'p' || e.key === 'P' || e.key === 'c' || e.key === 'C')
+        (e.key === 'p' || e.key === 's' || e.key === 'c' || e.key === 'u' || e.key === 'a')
       ) {
         e.preventDefault()
       }
-
-
-      // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
-      if (
-        e.key === 'F12' ||
-        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j')) ||
-        (e.ctrlKey && (e.key === 'U' || e.key === 'u'))
-      ) {
+      if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C'))) {
         e.preventDefault()
+      }
+    }
+
+    // Attempt to block Print Screen (limited support)
+    const handleKeyUp = e => {
+      if (e.key === 'PrintScreen') {
+        navigator.clipboard.writeText('') // Clear clipboard
+        alert('Screenshots are not allowed for this document.')
       }
     }
 
     document.addEventListener('contextmenu', handleContextMenu)
     document.addEventListener('keydown', handleKeyDown)
+    document.addEventListener('keyup', handleKeyUp)
 
     return () => {
       document.removeEventListener('contextmenu', handleContextMenu)
       document.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('keyup', handleKeyUp)
     }
   }, [])
 
-  return (
-    <Card className='bs-[85vh] flex flex-col relative overflow-hidden'>
-      <CardContent className='flex-grow p-0 relative bg-[#f0f0f0]'>
-        {/* Mock PDF Iframe */}
-        <Box className='bs-full is-full flex items-center justify-center relative'>
-          <Box className='bs-[90%] is-[80%] bg-white shadow-xl flex flex-col p-10'>
-             <Typography variant='h3' className='mb-6 font-bold'>Study Material: Full Stack Web Development</Typography>
-             <Typography variant='body1' className='mb-4'>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-                Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-             </Typography>
-             <div className='flex-grow border-t pt-4 mt-4'>
-                <Typography variant='h5' className='mb-2'>Module 1: Introduction to Next.js 15</Typography>
-                <Typography variant='body2'>
-                   This module covers the basics of Next.js 15, including the App Router, Server Components, and more...
-                </Typography>
-             </div>
-             <Typography variant='caption' className='text-center mt-auto border-t pt-2'>
-                &copy; 2026 Medify Hub Learning Platform. All rights reserved.
-             </Typography>
-          </Box>
-        </Box>
+  if (loading) {
+    return (
+      <Box className='bs-full flex items-center justify-center p-12'>
+        <CircularProgress />
+      </Box>
+    )
+  }
 
-        {/* Watermark Overlay */}
-        {appSettings?.watermarkEnable !== false && (
-          <Box
-            className='absolute inset-0 pointer-events-none flex flex-wrap items-center justify-around opacity-15 select-none'
-            style={{ zIndex: 10 }}
-          >
-            {Array.from({ length: 12 }).map((_, i) => (
-              <div key={i} className='transform -rotate-45 m-12 text-center'>
-                <Typography variant='h6' className='font-bold whitespace-nowrap text-primary' sx={{ opacity: 0.5 }}>
-                   {user?.name || 'Student'} - {user?.email || 'student@example.com'}
-                </Typography>
-                <Typography variant='caption' className='whitespace-nowrap'>{timestamp}</Typography>
-              </div>
-            ))}
-          </Box>
-        )}
-      </CardContent>
-    </Card>
+  if (!material) {
+    return (
+      <Box className='bs-full flex flex-col items-center justify-center p-12 gap-4'>
+        <Typography variant='h5'>Material Not Found</Typography>
+        <Typography color='text.secondary'>The requested study material does not exist or you don't have access.</Typography>
+        <IconButton onClick={() => router.back()} color='primary'>
+           <i className='tabler-arrow-left' /> Back
+        </IconButton>
+      </Box>
+    )
+  }
+
+  // Google Docs Viewer URL to prevent direct download links being exposed
+  const viewerUrl = material.type === 'PDF' 
+    ? `https://docs.google.com/viewer?url=${encodeURIComponent(material.fileUrl)}&embedded=true`
+    : material.fileUrl
+
+  return (
+    <Box className='bs-full flex flex-col gap-4'>
+      <div className='flex items-center justify-between'>
+        <div>
+          <Typography variant='h4'>{material.title}</Typography>
+          <Typography variant='body2' color='text.secondary'>{material.description}</Typography>
+        </div>
+        <IconButton onClick={() => router.back()} variant='tonal' color='secondary'>
+           <i className='tabler-x' />
+        </IconButton>
+      </div>
+
+      <Card className='bs-[80vh] flex flex-col relative overflow-hidden select-none' sx={{ 
+        '& *': { userSelect: 'none !important' },
+        '@media print': { display: 'none !important' }
+      }}>
+        <CardContent className='flex-grow p-0 relative bg-[#525659]'>
+          {/* Professional Viewer Iframe */}
+          <iframe
+            src={`${viewerUrl}#toolbar=0&navpanes=0&scrollbar=0`}
+            className='bs-full is-full border-none'
+            title={material.title}
+            style={{ filter: 'contrast(1.1)' }}
+          />
+
+          {/* High Security Watermark Overlay */}
+          {appSettings?.watermarkEnable !== false && (
+            <Box
+              className='absolute inset-0 pointer-events-none flex flex-wrap items-center justify-around opacity-20 select-none'
+              style={{ zIndex: 10 }}
+            >
+              {Array.from({ length: 15 }).map((_, i) => (
+                <div key={i} className='transform -rotate-45 m-16 text-center'>
+                  <Typography 
+                    variant='h6' 
+                    className='font-bold whitespace-nowrap text-white' 
+                    sx={{ 
+                      textShadow: '1px 1px 2px rgba(0,0,0,0.5)',
+                      fontSize: '1rem' 
+                    }}
+                  >
+                    {user?.name} | {user?.email}
+                  </Typography>
+                  <Typography 
+                    variant='caption' 
+                    className='whitespace-nowrap text-white'
+                    sx={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}
+                  >
+                    {timestamp}
+                  </Typography>
+                </div>
+              ))}
+            </Box>
+          )}
+
+          {/* Shield Overlay to prevent direct right-click on iframe */}
+          <div className='absolute inset-0 z-0 bg-transparent' />
+        </CardContent>
+      </Card>
+      
+      <Typography variant='caption' color='error' className='text-center flex items-center justify-center gap-1'>
+        <i className='tabler-shield-lock' />
+        Secure Content: Downloading and Screenshots are strictly prohibited and monitored.
+      </Typography>
+    </Box>
   )
 }
 

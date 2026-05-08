@@ -8,5 +8,7 @@ export const studentTestService = {
 }
 
 export const studentService = {
-  getProfile: () => apiClient('/auth/me')
+  getProfile: () => apiClient('/auth/me'),
+  getMaterials: () => apiClient('/materials'),
+  getMaterialById: (id) => apiClient(`/materials/${id}`)
 }

@@ -51,23 +51,10 @@ export const sendEmailOTP = async (email, otp, userName) => {
   try {
     const currentTransporter = getTransporter();
     await currentTransporter.sendMail(mailOptions);
-    console.log(`[EMAIL SUCCESS] OTP ${otp} sent to ${email}`);
+    console.log(`[EMAIL SUCCESS] OTP sent to ${email}`);
     return true;
   } catch (error) {
-    console.error('CRITICAL: Email Send Error:', error.message);
-    
-    // In development mode OR if MOCK_EMAIL is enabled, we log the OTP and allow the process to continue
-    const isMockEnabled = process.env.NODE_ENV === 'development' || process.env.MOCK_EMAIL === 'true';
-
-    if (isMockEnabled) {
-      console.log('----------------------------------------------------');
-      console.log('MOCK MODE ENABLED: EMAIL FAILED BUT LOGGING OTP');
-      console.log(`RECIPIENT: ${email}`);
-      console.log(`OTP CODE: ${otp}`);
-      console.log('----------------------------------------------------');
-      return true; 
-    }
-    
-    throw new Error('Failed to send email OTP. Please contact admin.');
+    console.error('Email Send Error:', error.message);
+    throw new Error('Failed to send email OTP. Please check your credentials.');
   }
 };

@@ -4,7 +4,6 @@ import { toast } from 'react-toastify'
 
 export const showToast = (message, type = 'success') => {
   const options = {
-    icon: type === 'success' ? <span>👏</span> : type === 'error' ? <span>❌</span> : <span>ℹ️</span>,
     position: 'top-right',
     autoClose: 3000,
     hideProgressBar: false,
@@ -15,7 +14,11 @@ export const showToast = (message, type = 'success') => {
 
   if (type === 'error') {
     toast.error(message, options)
+  } else if (type === 'warning') {
+    toast.warning(message, options)
+  } else if (type === 'info') {
+    toast.info(message, options)
   } else {
-    toast(message, options)
+    toast.success(message, options)
   }
 }

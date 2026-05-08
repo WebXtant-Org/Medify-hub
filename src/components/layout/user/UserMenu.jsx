@@ -36,8 +36,8 @@ const UserMenu = ({ dictionary, scrollMenu }) => {
           <MenuItem href="/dashboard/courses" icon={<i className='tabler-books' />}>
             My Courses
           </MenuItem>
-          <MenuItem href="/dashboard/viewer" icon={<i className='tabler-file-text' />}>
-            Viewer
+          <MenuItem href="/dashboard/learning" icon={<i className='tabler-book' />}>
+            Study Materials
           </MenuItem>
           <MenuItem href="/dashboard/payments" icon={<i className='tabler-currency-dollar' />}>
             Payments

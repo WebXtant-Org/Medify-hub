@@ -73,17 +73,10 @@ const sendOTP = asyncHandler(async (req, res) => {
     const targetEmail = user.personalEmail || user.email;
     await sendEmailOTP(targetEmail, otp, user.name);
     
-    // Include OTP in response if in development OR MOCK_EMAIL is true
-    const responseData = { 
+    res.json({ 
       message: 'OTP sent successfully', 
       email: targetEmail 
-    };
-    
-    if (process.env.NODE_ENV === 'development' || process.env.MOCK_EMAIL === 'true') {
-      responseData.devOTP = otp; 
-    }
-
-    res.json(responseData);
+    });
   } catch (error) {
     res.status(500);
     throw new Error(error.message || 'Could not send email. Please check your credentials.');
