@@ -1,0 +1,187 @@
+import asyncHandler from 'express-async-handler';
+import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
+import ActivityLog from '../models/ActivityLog.js';
+import { sendEmailOTP } from '../utils/emailService.js';
+import bcrypt from 'bcryptjs';
+
+// @desc    Auth user & get token
+// @route   POST /api/auth/login
+// @access  Public
+const loginUser = asyncHandler(async (req, res) => {
+  const { email, password, deviceId } = req.body;
+
+  const user = await User.findOne({ email });
+
+  if (user && (await user.matchPassword(password))) {
+    // Single Device Login Logic
+    if (deviceId) {
+      user.deviceId = deviceId;
+    }
+    
+    user.lastLogin = Date.now();
+    await user.save();
+
+    // Log Activity
+    await ActivityLog.create({
+      userId: user._id,
+      action: 'LOGIN',
+      details: `Logged in from device: ${deviceId || 'Unknown'}`,
+      userAgent: req.headers['user-agent']
+    });
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      token: generateToken(user._id),
+    });
+  } else {
+    res.status(401);
+    throw new Error('Invalid email or password');
+  }
+});
+
+// @desc    Send OTP to email
+// @route   POST /api/auth/send-otp
+// @access  Public
+const sendOTP = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  const user = await User.findOne({ email: { $regex: new RegExp('^' + email + '$', 'i') }, role: 'student' });
+
+  if (!user) {
+    res.status(404);
+    throw new Error('Student not found with this email');
+  }
+
+  // Generate 6 digit OTP
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  const otpExpires = Date.now() + 5 * 60 * 1000; // 5 mins
+
+  // Hash OTP for security
+  const salt = await bcrypt.genSalt(10);
+  const hashedOtp = await bcrypt.hash(otp, salt);
+
+  user.otp = hashedOtp;
+  user.otpExpires = otpExpires;
+  await user.save();
+
+  // Send Email OTP
+  try {
+    const targetEmail = user.personalEmail || user.email;
+    await sendEmailOTP(targetEmail, otp, user.name);
+    
+    // Include OTP in response if in development OR MOCK_EMAIL is true
+    const responseData = { 
+      message: 'OTP sent successfully', 
+      email: targetEmail 
+    };
+    
+    if (process.env.NODE_ENV === 'development' || process.env.MOCK_EMAIL === 'true') {
+      responseData.devOTP = otp; 
+    }
+
+    res.json(responseData);
+  } catch (error) {
+    res.status(500);
+    throw new Error(error.message || 'Could not send email. Please check your credentials.');
+  }
+});
+
+// @desc    Verify OTP and login
+// @route   POST /api/auth/verify-otp
+// @access  Public
+const verifyOTP = asyncHandler(async (req, res) => {
+  const { email, otp, deviceId } = req.body;
+
+  const user = await User.findOne({ email: { $regex: new RegExp('^' + email + '$', 'i') }, role: 'student' });
+
+  if (!user || !user.otp || user.otpExpires < Date.now()) {
+    res.status(401);
+    throw new Error('Invalid or expired OTP');
+  }
+
+  // Verify hashed OTP
+  const isMatch = await bcrypt.compare(otp, user.otp);
+  if (!isMatch) {
+    res.status(401);
+    throw new Error('Invalid or expired OTP');
+  }
+
+  // Clear OTP to prevent reuse
+  user.otp = undefined;
+  user.otpExpires = undefined;
+  
+  if (deviceId) {
+    user.deviceId = deviceId;
+  }
+  
+  user.lastLogin = Date.now();
+  await user.save();
+
+  // Log Activity
+  await ActivityLog.create({
+    userId: user._id,
+    action: 'LOGIN_EMAIL_OTP',
+    details: `Logged in via Email OTP from device: ${deviceId || 'Unknown'}`,
+    userAgent: req.headers['user-agent']
+  });
+
+  res.json({
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    token: generateToken(user._id),
+  });
+});
+
+// @desc    Verify student credentials (Step 1 of 2)
+// @route   POST /api/auth/verify-credentials
+// @access  Public
+const verifyCredentials = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+
+  // Case-insensitive search for email and role
+  const user = await User.findOne({ 
+    email: { $regex: new RegExp('^' + email + '$', 'i') }, 
+    role: 'student' 
+  });
+
+  if (user && (await user.matchPassword(password))) {
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      personalEmail: user.personalEmail,
+      mobile: user.mobile,
+      message: 'Credentials verified.'
+    });
+  } else {
+    res.status(401);
+    throw new Error('Invalid email or password');
+  }
+});
+
+// @desc    Get user profile
+// @route   GET /api/auth/me
+// @access  Private
+const getMe = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id).populate('batchId').populate('courseIds');
+  if (user) {
+    res.json(user);
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
+});
+
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: '30d',
+  });
+};
+
+export { loginUser, sendOTP, verifyOTP, verifyCredentials, getMe };

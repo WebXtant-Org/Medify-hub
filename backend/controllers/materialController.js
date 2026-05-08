@@ -1,0 +1,57 @@
+import Material from '../models/Material.js';
+import ActivityLog from '../models/ActivityLog.js';
+
+// @desc    Create study material
+// @route   POST /api/materials
+// @access  Private/Admin
+const createMaterial = async (req, res) => {
+  const { title, description, fileUrl, type, courseId, assignedUserIds } = req.body;
+
+  const material = await Material.create({
+    title,
+    description,
+    fileUrl,
+    type,
+    courseId,
+    assignedUserIds
+  });
+
+  if (material) {
+    await ActivityLog.create({
+      userId: req.user._id,
+      action: 'CREATE_MATERIAL',
+      details: `Created material: ${material.title}`,
+    });
+    res.status(201).json(material);
+  } else {
+    res.status(400);
+    throw new Error('Invalid material data');
+  }
+};
+
+// @desc    Get materials (filtered for students or all for admin)
+// @route   GET /api/materials
+// @access  Private
+const getMaterials = async (req, res) => {
+  let materials;
+  if (req.user.role === 'admin') {
+    materials = await Material.find({}).populate('courseId');
+  } else {
+    materials = await Material.find({ 
+      $or: [
+        { assignedUserIds: req.user._id },
+        { assignedUserIds: { $size: 0 } } // Global materials
+      ]
+    }).populate('courseId');
+    
+    // Log Activity for student viewing materials list
+    await ActivityLog.create({
+      userId: req.user._id,
+      action: 'VIEW_MATERIALS_LIST',
+      details: 'Viewed available materials list',
+    });
+  }
+  res.json(materials);
+};
+
+export { createMaterial, getMaterials };
