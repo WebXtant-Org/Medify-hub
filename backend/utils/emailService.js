@@ -8,7 +8,7 @@ let transporter;
 const getTransporter = () => {
   if (!transporter) {
     transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
+      host: '64.233.184.108',
       port: 465,
       secure: true,
       auth: {
@@ -16,9 +16,11 @@ const getTransporter = () => {
         pass: process.env.EMAIL_PASS,
       },
       tls: {
-        rejectUnauthorized: false
+        rejectUnauthorized: false,
+        servername: 'smtp.gmail.com'
       },
-      family: 4
+      debug: true,
+      logger: true
     });
   }
   return transporter;
