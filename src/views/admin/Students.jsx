@@ -118,6 +118,14 @@ const Students = () => {
         </Typography>
       )
     }),
+    columnHelper.accessor('studentId', {
+      header: 'Student ID',
+      cell: ({ row }) => (
+        <Typography color='primary' className='font-bold'>
+          {row.original.studentId || 'N/A'}
+        </Typography>
+      )
+    }),
     columnHelper.accessor('mobile', {
       header: 'Mobile',
       cell: ({ row }) => <Typography>{row.original.mobile}</Typography>

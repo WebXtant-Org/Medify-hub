@@ -62,3 +62,14 @@ export const settingsService = {
   get: () => apiClient('/settings'),
   update: (data) => apiClient('/settings', { method: 'PUT', body: JSON.stringify(data) })
 }
+
+export const materialService = {
+  getAll: () => apiClient('/materials'),
+  getById: (id) => apiClient(`/materials/${id}`),
+  create: (formData) => apiClient('/materials', { 
+    method: 'POST', 
+    body: formData 
+  }),
+  update: (id, data) => apiClient(`/materials/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id) => apiClient(`/materials/${id}`, { method: 'DELETE' })
+}

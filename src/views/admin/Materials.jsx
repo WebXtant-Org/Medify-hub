@@ -16,42 +16,78 @@ import { createColumnHelper, getCoreRowModel, useReactTable, getPaginationRowMod
 import { useAuth } from '@/contexts/AuthContext'
 import CustomDataTable from '@components/CustomDataTable'
 import CustomButton from '@components/CustomButton'
-import CustomTextField from '@core/components/mui/TextField'
 import { showToast } from '@/utils/toast'
 import DeleteConfirmationDialog from '@components/DeleteConfirmationDialog'
+import CustomTextField from '@core/components/mui/TextField'
+import { materialService, courseService } from '@/api/adminServices'
 
 const columnHelper = createColumnHelper()
 
 const Materials = () => {
-  const { materialsList, setMaterialsList } = useAuth()
+  const [materialsList, setMaterialsList] = useState([])
+  const [courses, setCourses] = useState([])
   const [globalFilter, setGlobalFilter] = useState('')
-  const [newMaterial, setNewMaterial] = useState({ title: '', description: '', type: 'PDF' })
+  const [newMaterial, setNewMaterial] = useState({ title: '', description: '', type: 'PDF', courseId: '' })
   const [file, setFile] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isUploading, setIsUploading] = useState(false)
   
   // Delete Dialog States
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const [materialToDelete, setMaterialToDelete] = useState(null)
 
-  const handleUpload = e => {
+  const fetchMaterials = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const [materialsData, coursesData] = await Promise.all([
+        materialService.getAll(),
+        courseService.getAll()
+      ])
+      setMaterialsList(materialsData)
+      setCourses(coursesData)
+    } catch (err) {
+      console.error('Failed to fetch data:', err)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  useMemo(() => {
+    fetchMaterials()
+  }, [fetchMaterials])
+
+  const handleUpload = async e => {
     e.preventDefault()
 
-    if (newMaterial.title && newMaterial.description) {
-      const updated = [
-        ...materialsList,
-        {
-          id: Date.now(),
-          title: newMaterial.title,
-          description: newMaterial.description,
-          type: newMaterial.type,
-          assignedCount: 0,
-          file: file ? file.name : 'No file'
-        }
-      ]
+    if (!file) {
+      showToast('Please select a file', 'error')
+      return
+    }
 
-      setMaterialsList(updated)
-      setNewMaterial({ title: '', description: '', type: 'PDF' })
+    if (!newMaterial.courseId) {
+      showToast('Please select a course', 'error')
+      return
+    }
+
+    try {
+      setIsUploading(true)
+      const formData = new FormData()
+      formData.append('title', newMaterial.title)
+      formData.append('description', newMaterial.description)
+      formData.append('type', newMaterial.type)
+      formData.append('courseId', newMaterial.courseId)
+      formData.append('file', file)
+
+      const res = await materialService.create(formData)
+      
+      setMaterialsList(prev => [...prev, res])
+      setNewMaterial({ title: '', description: '', type: 'PDF', courseId: '' })
       setFile(null)
       showToast('Material uploaded successfully!')
+    } catch (err) {
+      showToast(err.message || 'Upload failed', 'error')
+    } finally {
+      setIsUploading(false)
     }
   }
 
@@ -60,12 +96,18 @@ const Materials = () => {
     setOpenDeleteDialog(true)
   }
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!materialToDelete) return
-    setMaterialsList(materialsList.filter(m => m.id !== materialToDelete))
-    showToast('Material deleted', 'error')
-    setOpenDeleteDialog(false)
-    setMaterialToDelete(null)
+    
+    try {
+      await materialService.delete(materialToDelete)
+      setMaterialsList(prev => prev.filter(m => m._id !== materialToDelete))
+      showToast('Material deleted', 'error')
+      setOpenDeleteDialog(false)
+      setMaterialToDelete(null)
+    } catch (err) {
+      showToast('Failed to delete material', 'error')
+    }
   }
 
   const columns = useMemo(() => [
@@ -85,7 +127,7 @@ const Materials = () => {
           <IconButton size='small' color='primary'>
             <i className='tabler-edit' />
           </IconButton>
-          <IconButton size='small' color='error' onClick={() => handleDeleteClick(row.original.id)}>
+          <IconButton size='small' color='error' onClick={() => handleDeleteClick(row.original._id)}>
             <i className='tabler-trash' />
           </IconButton>
         </div>
@@ -106,9 +148,9 @@ const Materials = () => {
         <Chip label={row.original.type} color={row.original.type === 'PDF' ? 'primary' : 'warning'} size='small' variant='tonal' />
       )
     }),
-    columnHelper.accessor('assignedCount', {
+    columnHelper.accessor('assignedUserIds', {
       header: 'Assigned Users',
-      cell: ({ row }) => <Typography variant='h6' align='center'>{row.original.assignedCount}</Typography>
+      cell: ({ row }) => <Typography variant='h6' align='center'>{row.original.assignedUserIds?.length || 0}</Typography>
     })
   ], [materialsList])
 
@@ -151,6 +193,20 @@ const Materials = () => {
                   <MenuItem value='Audio'>Audio</MenuItem>
                 </CustomTextField>
                 <CustomTextField
+                  select
+                  fullWidth
+                  label='Course'
+                  value={newMaterial.courseId}
+                  onChange={e => setNewMaterial({ ...newMaterial, courseId: e.target.value })}
+                  required
+                >
+                  {courses.map(course => (
+                    <MenuItem key={course._id} value={course._id}>
+                      {course.title}
+                    </MenuItem>
+                  ))}
+                </CustomTextField>
+                <CustomTextField
                   label='Description'
                   fullWidth
                   multiline
@@ -160,8 +216,8 @@ const Materials = () => {
                   required
                 />
                 <Box>
-                  <CustomButton variant='tonal' component='label' color='secondary' fullWidth>
-                    Select File (Mock)
+                  <CustomButton variant='tonal' component='label' color='secondary' fullWidth disabled={isUploading}>
+                    {file ? 'Change File' : 'Select File'}
                     <input type='file' hidden onChange={e => setFile(e.target.files[0])} />
                   </CustomButton>
                   {file && (
@@ -170,8 +226,8 @@ const Materials = () => {
                     </Typography>
                   )}
                 </Box>
-                <CustomButton type='submit' fullWidth>
-                  Upload
+                <CustomButton type='submit' fullWidth disabled={isUploading}>
+                  {isUploading ? 'Uploading...' : 'Upload'}
                 </CustomButton>
               </form>
             </CardContent>
@@ -191,7 +247,7 @@ const Materials = () => {
                 />
               }
             />
-            <CustomDataTable table={table} isLoading={false} columns={columns} />
+            <CustomDataTable table={table} isLoading={isLoading} columns={columns} />
           </Card>
         </Grid>
       </Grid>

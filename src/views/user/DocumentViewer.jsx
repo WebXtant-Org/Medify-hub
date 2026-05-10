@@ -66,8 +66,12 @@ const DocumentViewer = () => {
     // Attempt to block Print Screen (limited support)
     const handleKeyUp = e => {
       if (e.key === 'PrintScreen') {
-        navigator.clipboard.writeText('') // Clear clipboard
-        alert('Screenshots are not allowed for this document.')
+        try {
+          // Just show alert, clearing clipboard often fails due to permissions
+          alert('Screenshots are not allowed for this document.')
+        } catch (err) {
+          console.error('Clipboard/Alert error:', err)
+        }
       }
     }
 
@@ -102,8 +106,11 @@ const DocumentViewer = () => {
     )
   }
 
-  // Google Docs Viewer URL to prevent direct download links being exposed
-  const viewerUrl = material.type === 'PDF' 
+  // Google Docs Viewer URL for PDFs, direct link for others
+  const isVideo = material.type === 'Video'
+  const isPDF = material.type === 'PDF'
+
+  const viewerUrl = isPDF 
     ? `https://docs.google.com/viewer?url=${encodeURIComponent(material.fileUrl)}&embedded=true`
     : material.fileUrl
 
@@ -123,14 +130,32 @@ const DocumentViewer = () => {
         '& *': { userSelect: 'none !important' },
         '@media print': { display: 'none !important' }
       }}>
-        <CardContent className='flex-grow p-0 relative bg-[#525659]'>
-          {/* Professional Viewer Iframe */}
-          <iframe
-            src={`${viewerUrl}#toolbar=0&navpanes=0&scrollbar=0`}
-            className='bs-full is-full border-none'
-            title={material.title}
-            style={{ filter: 'contrast(1.1)' }}
-          />
+        <CardContent className='flex-grow p-0 relative bg-[#2f3349]'>
+          {isPDF ? (
+            <iframe
+              src={`${viewerUrl}#toolbar=0&navpanes=0&scrollbar=0`}
+              className='bs-full is-full border-none'
+              title={material.title}
+              style={{ filter: 'contrast(1.1)' }}
+            />
+          ) : isVideo ? (
+            <video 
+              controls 
+              controlsList="nodownload" 
+              className='bs-full is-full'
+              style={{ objectFit: 'contain' }}
+            >
+              <source src={material.fileUrl} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          ) : (
+            <div className='flex items-center justify-center bs-full'>
+              <Typography color='white'>Preview not available for this file type.</Typography>
+              <Button href={material.fileUrl} target='_blank' color='primary' className='ml-4'>
+                Download/View Original
+              </Button>
+            </div>
+          )}
 
           {/* High Security Watermark Overlay */}
           {appSettings?.watermarkEnable !== false && (

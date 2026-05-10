@@ -32,7 +32,7 @@ const Reports = () => {
         <Card>
           <CardHeader title='Revenue Report' />
           <CardContent>
-            <AppReactApexCharts type='line' height={350} series={[{ name: 'Revenue', data: reportsData.revenue }]} options={revenueOptions} />
+            <AppReactApexCharts type='line' height={350} series={[{ name: 'Revenue', data: reportsData?.revenue || [] }]} options={revenueOptions} />
           </CardContent>
         </Card>
       </Grid>
@@ -40,7 +40,7 @@ const Reports = () => {
         <Card>
           <CardHeader title='Admission Report' />
           <CardContent>
-            <AppReactApexCharts type='bar' height={350} series={[{ name: 'Admissions', data: reportsData.admissions }]} options={revenueOptions} />
+            <AppReactApexCharts type='bar' height={350} series={[{ name: 'Admissions', data: reportsData?.admissions || [] }]} options={revenueOptions} />
           </CardContent>
         </Card>
       </Grid>

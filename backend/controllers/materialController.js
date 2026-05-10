@@ -5,15 +5,20 @@ import ActivityLog from '../models/ActivityLog.js';
 // @route   POST /api/materials
 // @access  Private/Admin
 const createMaterial = async (req, res) => {
-  const { title, description, fileUrl, type, courseId, assignedUserIds } = req.body;
+  const { title, description, type, courseId, assignedUserIds } = req.body;
+
+  if (!req.file) {
+    res.status(400);
+    throw new Error('No file uploaded');
+  }
 
   const material = await Material.create({
     title,
     description,
-    fileUrl,
+    fileUrl: req.file.path,
     type,
     courseId,
-    assignedUserIds
+    assignedUserIds: assignedUserIds ? JSON.parse(assignedUserIds) : []
   });
 
   if (material) {

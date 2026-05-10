@@ -1,6 +1,38 @@
 import asyncHandler from 'express-async-handler';
 import User from '../models/User.js';
+import Course from '../models/Course.js';
 import ActivityLog from '../models/ActivityLog.js';
+
+// Helper to generate Student ID
+const generateStudentId = async (courseId) => {
+  const course = await Course.findById(courseId);
+  if (!course) return 'MHHSGEN001';
+
+  let prefix = 'MHHS';
+  const title = course.title.toUpperCase();
+
+  if (title.includes('BMCT') || title.includes('BASIC MEDICAL CODING')) {
+    prefix += 'BMCT';
+  } else if (title.includes('AMCT') || title.includes('ADVANCED MEDICAL CODING')) {
+    prefix += 'AMCT';
+  } else if (title.includes('CPC')) {
+    prefix += 'CPC';
+  } else if (title.includes('CCS')) {
+    prefix += 'CCS';
+  } else if (title.includes('CRC')) {
+    prefix += 'CRC';
+  } else if (title.includes('UAE') || title.includes('DUBAI')) {
+    prefix += 'UAE';
+  } else {
+    prefix += 'GEN';
+  }
+
+  // Find count of students with this prefix to determine sequence
+  const count = await User.countDocuments({ studentId: { $regex: new RegExp('^' + prefix) } });
+  const sequence = (count + 1).toString().padStart(3, '0');
+
+  return `${prefix}${sequence}`;
+};
 
 // @desc    Register a new user (Admin only)
 // @route   POST /api/users
@@ -15,14 +47,24 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new Error('User already exists');
   }
 
+  const userRole = role ? role.toLowerCase() : 'student';
+  let studentId = undefined;
+
+  if (userRole === 'student') {
+    // Generate ID based on the first selected course
+    const primaryCourseId = courseIds && courseIds.length > 0 ? courseIds[0] : null;
+    studentId = await generateStudentId(primaryCourseId);
+  }
+
   const user = await User.create({
     name,
+    studentId,
     email,
     personalEmail,
     feesStatus,
     mobile,
     password,
-    role: role ? role.toLowerCase() : 'student',
+    role: userRole,
     status: req.body.status ? req.body.status.toLowerCase() : 'active',
     batchId,
     courseIds,
@@ -37,7 +79,7 @@ const registerUser = asyncHandler(async (req, res) => {
     await ActivityLog.create({
       userId: req.user._id,
       action: 'CREATE_USER',
-      details: `Created user: ${user.email} (${user.role})`,
+      details: `Created user: ${user.email} (${user.role})${studentId ? ' with ID: ' + studentId : ''}`,
     });
 
     res.status(201).json(populatedUser);
@@ -122,6 +164,12 @@ const updateUser = asyncHandler(async (req, res) => {
     user.courseIds = req.body.courseIds || user.courseIds;
     user.specialty = req.body.specialty || user.specialty;
     user.salary = req.body.salary || user.salary;
+
+    // Handle studentId if it was missing (e.g. for legacy users being updated to student)
+    if (user.role === 'student' && !user.studentId) {
+       const primaryCourseId = user.courseIds && user.courseIds.length > 0 ? user.courseIds[0] : null;
+       user.studentId = await generateStudentId(primaryCourseId);
+    }
 
     if (req.body.password) {
       user.password = req.body.password;

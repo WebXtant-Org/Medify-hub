@@ -102,10 +102,9 @@ const Login = ({ mode }) => {
   const [errorState, setErrorState] = useState(null)
   const [roleTab, setRoleTab] = useState(0)
   
-  // Student Login Steps: 1 (Credentials), 2 (Email/OTP Send), 3 (OTP Verify)
+  // Student Login Steps: 1 (ID), 2 (OTP Send), 3 (OTP Verify)
   const [studentStep, setStudentStep] = useState(1)
-  const [emailValue, setEmailValue] = useState('MH-JEGAN-MORNINGBATCH-2026@medifyhub.com')
-  const [passwordValue, setPasswordValue] = useState('JEGAN@MH2026')
+  const [studentId, setStudentId] = useState('')
   const [targetEmail, setTargetEmail] = useState('')
   const [otp, setOtp] = useState('')
   const [resendTimer, setResendTimer] = useState(0)
@@ -133,8 +132,8 @@ const Login = ({ mode }) => {
   } = useForm({
     resolver: valibotResolver(schema),
     defaultValues: {
-      email: 'medifyhub@gmail.com',
-      password: 'medify_hub@2026'
+      email: '',
+      password: ''
     }
   })
 
@@ -148,20 +147,20 @@ const Login = ({ mode }) => {
   const handleClickShowPassword = () => setIsPasswordShown(show => !show)
 
   const handleStudentStep1 = async () => {
-    if (!emailValue || !passwordValue) {
-      showToast('Please enter both email and password', 'error')
+    if (!studentId) {
+      showToast('Please enter your Student ID', 'error')
       
 return
     }
 
     try {
       setIsLoading(true)
-      await verifyCredentials(emailValue, passwordValue)
+      await verifyCredentials(studentId)
       
-      // Automatically trigger OTP sending after credentials verification
+      // Automatically trigger OTP sending after ID verification
       await handleSendOTP()
     } catch (err) {
-      showToast(err.message || 'Invalid credentials', 'error')
+      showToast(err.message || 'Invalid Student ID', 'error')
       setIsLoading(false)
     }
   }
@@ -169,7 +168,7 @@ return
   const handleSendOTP = async () => {
     try {
       setIsLoading(true)
-      const res = await sendOTP(emailValue)
+      const res = await sendOTP(studentId)
 
       setTargetEmail(res.email)
       setStudentStep(3)
@@ -202,7 +201,7 @@ return
 
     try {
       setIsLoading(true)
-      const res = await verifyOTP(emailValue, otp)
+      const res = await verifyOTP(studentId, otp)
 
       showToast('Login successful! Welcome back.')
       handleRedirect(res)
@@ -333,16 +332,14 @@ return
               onChange={(e, newVal) => {
                 setRoleTab(newVal)
                 setStudentStep(1)
-                setEmailValue('')
-                setPasswordValue('')
+                setStudentId('')
                 setOtp('')
 
                 if (newVal === 0) {
-                  setValue('email', 'medifyhub@gmail.com')
-                  setValue('password', 'medify_hub@2026')
+                  setValue('email', '')
+                  setValue('password', '')
                 } else {
-                  setEmailValue('MH-JEGAN-MORNINGBATCH-2026@medifyhub.com')
-                  setPasswordValue('JEGAN@MH2026')
+                  setStudentId('')
                 }
               }} 
               variant="fullWidth"
@@ -411,43 +408,23 @@ return
                 <>
                   <CustomTextField
                     fullWidth
-                    label='Email'
-                    placeholder='student@example.com'
-                    value={emailValue}
-                    onChange={e => setEmailValue(e.target.value)}
+                    label='Student ID'
+                    placeholder='MHHSBMCT001'
+                    value={studentId}
+                    onChange={e => setStudentId(e.target.value)}
                     autoFocus
                   />
-                  <CustomTextField
-                    fullWidth
-                    label='Password'
-                    placeholder='············'
-                    type={isPasswordShown ? 'text' : 'password'}
-                    value={passwordValue}
-                    onChange={e => setPasswordValue(e.target.value)}
-                    slotProps={{
-                      input: {
-                        endAdornment: (
-                          <InputAdornment position='end'>
-                            <IconButton edge='end' onClick={handleClickShowPassword}>
-                              <i className={isPasswordShown ? 'tabler-eye' : 'tabler-eye-off'} />
-                            </IconButton>
-                          </InputAdornment>
-                        )
-                      }
-                    }}
-                  />
+                  
                   <Button 
                     fullWidth 
                     variant='contained' 
                     onClick={handleStudentStep1}
-                    disabled={isLoading || !emailValue || !passwordValue}
+                    disabled={isLoading || !studentId}
                   >
-                    {isLoading ? 'Verifying...' : 'Verify & Send OTP'}
+                    {isLoading ? 'Verifying ID...' : 'Verify ID & Send OTP'}
                   </Button>
                 </>
               ) : studentStep === 2 ? (
-
-                // Step 2 is now bypassed by auto-send, but kept for transition logic
                 <div className='flex justify-center p-4'>
                   <Typography>Sending OTP...</Typography>
                 </div>

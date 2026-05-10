@@ -5,7 +5,7 @@ import ActivityLog from '../models/ActivityLog.js';
 import { sendEmailOTP } from '../utils/emailService.js';
 import bcrypt from 'bcryptjs';
 
-// @desc    Auth user & get token
+// @desc    Auth user & get token (Admin/Faculty)
 // @route   POST /api/auth/login
 // @access  Public
 const loginUser = asyncHandler(async (req, res) => {
@@ -43,17 +43,17 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Send OTP to email
+// @desc    Send OTP to student (using studentId)
 // @route   POST /api/auth/send-otp
 // @access  Public
 const sendOTP = asyncHandler(async (req, res) => {
-  const { email } = req.body;
+  const { studentId } = req.body;
 
-  const user = await User.findOne({ email: { $regex: new RegExp('^' + email + '$', 'i') }, role: 'student' });
+  const user = await User.findOne({ studentId, role: 'student' });
 
   if (!user) {
     res.status(404);
-    throw new Error('Student not found with this email');
+    throw new Error('Student not found with this ID');
   }
 
   // Generate 6 digit OTP
@@ -83,13 +83,13 @@ const sendOTP = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Verify OTP and login
+// @desc    Verify OTP and login (Student)
 // @route   POST /api/auth/verify-otp
 // @access  Public
 const verifyOTP = asyncHandler(async (req, res) => {
-  const { email, otp, deviceId } = req.body;
+  const { studentId, otp, deviceId } = req.body;
 
-  const user = await User.findOne({ email: { $regex: new RegExp('^' + email + '$', 'i') }, role: 'student' });
+  const user = await User.findOne({ studentId, role: 'student' });
 
   if (!user || !user.otp || user.otpExpires < Date.now()) {
     res.status(401);
@@ -126,35 +126,33 @@ const verifyOTP = asyncHandler(async (req, res) => {
     _id: user._id,
     name: user.name,
     email: user.email,
+    studentId: user.studentId,
     role: user.role,
     token: generateToken(user._id),
   });
 });
 
-// @desc    Verify student credentials (Step 1 of 2)
+// @desc    Verify student ID (Step 1 of 2) - Password removed as requested
 // @route   POST /api/auth/verify-credentials
 // @access  Public
 const verifyCredentials = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  const { studentId } = req.body;
 
-  // Case-insensitive search for email and role
-  const user = await User.findOne({ 
-    email: { $regex: new RegExp('^' + email + '$', 'i') }, 
-    role: 'student' 
-  });
+  const user = await User.findOne({ studentId, role: 'student' });
 
-  if (user && (await user.matchPassword(password))) {
+  if (user) {
     res.json({
       _id: user._id,
       name: user.name,
+      studentId: user.studentId,
       email: user.email,
       personalEmail: user.personalEmail,
       mobile: user.mobile,
-      message: 'Credentials verified.'
+      message: 'ID verified.'
     });
   } else {
-    res.status(401);
-    throw new Error('Invalid email or password');
+    res.status(404);
+    throw new Error('Invalid Student ID');
   }
 });
 

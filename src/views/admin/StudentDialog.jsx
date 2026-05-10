@@ -22,9 +22,9 @@ import { showToast } from '@/utils/toast'
 
 const studentSchema = (isEdit) => object({
   name: pipe(string(), minLength(1, 'Name is required')),
-  email: pipe(string(), minLength(1, 'Student ID/Email is required')),
+  email: pipe(string(), minLength(1, 'Login Id is required')),
   personalEmail: pipe(string(), minLength(1, 'Personal Email is required'), email('Invalid personal email')),
-  password: isEdit ? pipe(string()) : pipe(string(), minLength(5, 'Password must be at least 5 characters')),
+  password: pipe(string()),
   courseId: pipe(string(), minLength(1, 'Course is required')),
   batchId: pipe(string(), minLength(1, 'Batch is required')),
   mobile: pipe(string(), minLength(10, 'Mobile number must be at least 10 digits')),
@@ -32,9 +32,19 @@ const studentSchema = (isEdit) => object({
   feesStatus: pipe(string(), minLength(1, 'Fees status is required'))
 })
 
+const COURSE_CODES = {
+  'Basic Medical Coding Training (BMCT)': 'BMCT',
+  'Advanced Medical Coding Training (AMCT)': 'AMCT',
+  'Certified Professional Coder (CPC)': 'CPC',
+  'Certified Coding Specialist (CCS)': 'CCS',
+  'Certified Risk adjustment Coder (CRC)': 'CRC',
+  'UAE Medical Coding Course': 'UAE'
+}
+
 const StudentDialog = ({ open, handleClose, student, refreshData }) => {
   const [courses, setCourses] = useState([])
   const [batches, setBatches] = useState([])
+  const [allStudents, setAllStudents] = useState([])
 
   const {
     control,
@@ -64,37 +74,56 @@ const StudentDialog = ({ open, handleClose, student, refreshData }) => {
   const watchCourseId = watch('courseId')
 
   useEffect(() => {
-    if (!student && open && watchName) {
-      const year = new Date().getFullYear()
-      const cleanName = watchName.toUpperCase().replace(/\s+/g, '')
-      
-      const selectedBatch = batches.find(b => b._id === watchBatchId)
-      const cleanBatch = (selectedBatch?.name || 'BATCH').toUpperCase().replace(/\s+/g, '')
-      
-      // Generate Professional ID (Email)
-      const generatedId = `MH-${cleanName}-${cleanBatch}-${year}@medifyhubhealthcaresolution.com`
+    if (!student && open && watchCourseId) {
+      const selectedCourse = courses.find(c => c._id === watchCourseId)
+      if (!selectedCourse) return
 
+      const courseTitle = selectedCourse.title || ''
+      let courseCode = 'GEN'
+      
+      // Find matching code
+      Object.keys(COURSE_CODES).forEach(key => {
+        if (courseTitle.includes(key) || key.includes(courseTitle)) {
+          courseCode = COURSE_CODES[key]
+        }
+      })
+
+      // Fallback for UAE if not matched exactly
+      if (courseCode === 'GEN' && (courseTitle.includes('UAE') || courseTitle.includes('Dubai'))) {
+        courseCode = 'UAE'
+      }
+
+      const prefix = `MHHS${courseCode}`
+      
+      // Calculate sequence based on existing students with this prefix
+      const count = allStudents.filter(s => (s.studentId || s.email || '').startsWith(prefix)).length
+      const sequence = (count + 1).toString().padStart(3, '0')
+      
+      const generatedId = `${prefix}${sequence}`
       setValue('email', generatedId)
 
-      // Generate Professional Password
+      // Generate Background Password
+      const year = new Date().getFullYear()
+      const cleanName = (watchName || 'STUDENT').toUpperCase().replace(/\s+/g, '')
       const generatedPass = `${cleanName}@MH${year}`
-
       setValue('password', generatedPass)
     }
-  }, [watchName, watchBatchId, watchCourseId, setValue, student, open, batches])
+  }, [watchName, watchCourseId, setValue, student, open, courses, allStudents])
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [coursesData, batchesData] = await Promise.all([
+        const [coursesData, batchesData, studentsData] = await Promise.all([
           courseService.getAll(),
-          batchService.getAll()
+          batchService.getAll(),
+          studentService.getAll()
         ])
 
         setCourses(coursesData)
         setBatches(batchesData)
+        setAllStudents(studentsData)
       } catch (err) {
-        console.error('Error fetching courses/batches:', err)
+        console.error('Error fetching courses/batches/students:', err)
       }
     }
 
@@ -215,43 +244,6 @@ const StudentDialog = ({ open, handleClose, student, refreshData }) => {
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
               <Controller
-                name='email'
-                control={control}
-                render={({ field }) => (
-                  <CustomTextField
-                    {...field}
-                    fullWidth
-                    label='Professional ID / Login Email'
-                    placeholder='MH-JOHN-BATCHA-2026@medifyhubhealthcaresolution.com'
-                    error={!!errors.email}
-                    helperText={errors.email?.message || 'Auto-generated professional ID'}
-                    required
-                    type='email'
-                    slotProps={{ input: { readOnly: !!student } }}
-                  />
-                )}
-              />
-            </Grid>
-            {!student && (
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <Controller
-                  name='password'
-                  control={control}
-                  render={({ field }) => (
-                    <CustomTextField
-                      {...field}
-                      fullWidth
-                      label='Generated Password'
-                      error={!!errors.password}
-                      helperText={errors.password?.message || 'Auto-generated professional password'}
-                      required
-                    />
-                  )}
-                />
-              </Grid>
-            )}
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <Controller
                 name='courseId'
                 control={control}
                 render={({ field: { onChange, value } }) => (
@@ -293,6 +285,24 @@ const StudentDialog = ({ open, handleClose, student, refreshData }) => {
                         sx={{ '& .MuiFormLabel-asterisk': { color: 'error.main' } }}
                       />
                     )}
+                  />
+                )}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Controller
+                name='email'
+                control={control}
+                render={({ field }) => (
+                  <CustomTextField
+                    {...field}
+                    fullWidth
+                    label='Login Id'
+                    placeholder='MHHSBMCT001'
+                    error={!!errors.email}
+                    helperText={errors.email?.message || 'Auto-generated professional ID'}
+                    required
+                    slotProps={{ input: { readOnly: !!student } }}
                   />
                 )}
               />

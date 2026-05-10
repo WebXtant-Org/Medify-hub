@@ -48,6 +48,9 @@ const AdminMenu = ({ dictionary, scrollMenu }) => {
           <MenuItem href="/admin/batches" icon={<i className='tabler-stack-2' />}>
             Batches
           </MenuItem>
+          <MenuItem href="/admin/materials" icon={<i className='tabler-file-text' />}>
+            Study Materials
+          </MenuItem>
           <MenuItem href="/admin/faculty" icon={<i className='tabler-user-star' />}>
             Faculty
           </MenuItem>

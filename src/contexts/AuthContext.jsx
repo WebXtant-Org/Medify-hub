@@ -1,90 +1,52 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react'
+// React Imports
+import { createContext, useContext, useEffect, useState } from 'react'
 
-import { useRouter, useParams } from 'next/navigation'
+// Next Imports
+import { useRouter } from 'next/navigation'
 
+// API Imports
+import { settingsService, reportService } from '@/api/adminServices'
 
-
-import { settingsService } from '@/api/adminServices'
-
-const AuthContext = createContext()
+// Create Context
+export const AuthContext = createContext()
 
 export const AuthProvider = ({ children }) => {
+  // States
   const [user, setUser] = useState(null)
-  const [role, setRole] = useState(null)
-  const [token, setToken] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [deviceId, setDeviceId] = useState(null)
-  const [appSettings, setAppSettings] = useState({ singleDeviceLogin: true, watermarkEnable: true, platformName: 'Medify Hub' })
-  const [activityLogs, setActivityLogs] = useState([])
-  const [auditLogs, setAuditLogs] = useState([])
-  const [devices, setDevices] = useState([])
-  const [studentsList, setStudentsList] = useState([])
-  const [coursesList, setCoursesList] = useState([])
-  const [batchesList, setBatchesList] = useState([])
-  const [facultyList, setFacultyList] = useState([])
-  const [paymentsList, setPaymentsList] = useState([])
-  const [testsList, setTestsList] = useState([])
-  const [notificationsList, setNotificationsList] = useState([])
+  const [appSettings, setAppSettings] = useState(null)
   const [reportsData, setReportsData] = useState({ revenue: [], admissions: [] })
 
+  // Hooks
   const router = useRouter()
-  const { lang: locale } = useParams()
 
   useEffect(() => {
-    // Check if token exists in localStorage
-    const storedToken = localStorage.getItem('token')
-    const storedRole = localStorage.getItem('role')
-    const storedUser = localStorage.getItem('user')
-    const storedDeviceId = localStorage.getItem('deviceId')
+    const initAuth = async () => {
+      const token = localStorage.getItem('token')
+      const storedUser = localStorage.getItem('userData')
 
-    // Safe JSON Parse Helper
-    const safeParse = (key, fallback) => {
-      const value = localStorage.getItem(key)
-
-      if (value && value !== 'undefined') {
+      if (token && storedUser) {
         try {
-          return JSON.parse(value)
+          const userData = JSON.parse(storedUser)
+          setUser(userData)
+          
+          // Fetch settings and reports if logged in
+          settingsService.get().then(setAppSettings).catch(console.error)
+          if (userData.role === 'admin') {
+            reportService.getCharts().then(setReportsData).catch(console.error)
+          }
         } catch (e) {
-          return fallback
+          localStorage.removeItem('token')
+          localStorage.removeItem('userData')
         }
       }
 
-      
-return fallback
+      setLoading(false)
     }
 
-    if (storedToken && storedRole) {
-      const expectedDeviceId = localStorage.getItem('expectedDeviceId')
-      const savedSettingsStr = localStorage.getItem('appSettings')
-      let isSingleDeviceEnabled = true
-      
-      if (savedSettingsStr && savedSettingsStr !== 'undefined') {
-        try {
-          isSingleDeviceEnabled = JSON.parse(savedSettingsStr)?.singleDeviceLogin !== false
-        } catch (e) {}
-      }
-
-      if (isSingleDeviceEnabled && expectedDeviceId && storedDeviceId !== expectedDeviceId) {
-        handleLogout('Device Mismatch - AuthContext Effect')
-      } else {
-        setToken(storedToken)
-        setRole(storedRole)
-        setDeviceId(storedDeviceId)
-
-        if (storedUser && storedUser !== 'undefined') {
-          try {
-            setUser(JSON.parse(storedUser))
-            
-            // Fetch settings if logged in
-            settingsService.get().then(setAppSettings).catch(console.error)
-          } catch (e) {}
-        }
-      }
-    }
-
-    setLoading(false)
+    initAuth()
   }, [])
 
   const login = async (email, password) => {
@@ -99,7 +61,6 @@ return fallback
         })
       })
 
-      // Check if response is JSON
       const contentType = response.headers.get('content-type')
       if (!contentType || !contentType.includes('application/json')) {
         throw new Error('Server returned non-JSON response. Please check if backend is running.')
@@ -111,46 +72,48 @@ return fallback
         throw new Error(data.message || 'Invalid email or password')
       }
 
-      // Store in localStorage
       localStorage.setItem('token', data.token)
-      localStorage.setItem('role', data.role)
-      localStorage.setItem('user', JSON.stringify({ 
-        id: data._id, 
-        name: data.name, 
-        email: data.email 
-      }))
-      
-      if (data.deviceId) {
-        localStorage.setItem('deviceId', data.deviceId)
-        localStorage.setItem('expectedDeviceId', data.deviceId)
+      localStorage.setItem('userData', JSON.stringify(data))
+      setUser(data)
+
+      // Fetch app settings after login
+      try {
+        const settings = await settingsService.get()
+        setAppSettings(settings)
+      } catch (err) {
+        console.error('Failed to load settings:', err)
       }
 
-      // Update state
-      setToken(data.token)
-      setRole(data.role)
-      setUser({ id: data._id, name: data.name, email: data.email })
-      setDeviceId(data.deviceId)
-      setLoading(false)
-      
-      return { role: data.role }
-    } catch (error) {
-      console.error('Login Error:', error)
-      throw error
+      // Fetch reports data if admin
+      if (data.role === 'admin') {
+        try {
+          const charts = await reportService.getCharts()
+          setReportsData(charts)
+        } catch (err) {
+          console.error('Failed to load reports:', err)
+        }
+      }
+
+      return data
+    } catch (err) {
+      throw err
     }
   }
 
-  const sendOTP = async (email) => {
+  const logout = () => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('userData')
+    setUser(null)
+    router.push('/login')
+  }
+
+  const sendOTP = async (studentId) => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ studentId })
       })
-
-      const contentType = response.headers.get('content-type')
-      if (!contentType || !contentType.includes('application/json')) {
-        throw new Error('Server returned non-JSON response. Please check if backend is running.')
-      }
 
       const data = await response.json()
 
@@ -159,189 +122,96 @@ return fallback
       }
 
       return data
-    } catch (error) {
-      console.error('Send OTP Error:', error)
-      throw error
+    } catch (err) {
+      throw err
     }
   }
 
-  const verifyOTP = async (email, otp) => {
+  const verifyOTP = async (studentId, otp) => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          email, 
+          studentId, 
           otp,
-          deviceId: localStorage.getItem('deviceId') || 'web-client-' + Math.random().toString(36).substring(7) 
+          deviceId: localStorage.getItem('deviceId') || 'web-client-' + Math.random().toString(36).substring(7)
         })
       })
-
-      const contentType = response.headers.get('content-type')
-      if (!contentType || !contentType.includes('application/json')) {
-        throw new Error('Server returned non-JSON response. Please check if backend is running.')
-      }
 
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.message || 'Invalid or expired OTP')
+        throw new Error(data.message || 'Verification failed')
       }
 
-      // Store in localStorage
       localStorage.setItem('token', data.token)
-      localStorage.setItem('role', data.role)
-      localStorage.setItem('user', JSON.stringify({ 
-        id: data._id, 
-        name: data.name, 
-        email: data.email 
-      }))
-      
-      if (data.deviceId) {
-        localStorage.setItem('deviceId', data.deviceId)
-        localStorage.setItem('expectedDeviceId', data.deviceId)
+      localStorage.setItem('userData', JSON.stringify(data))
+      setUser(data)
+
+      // Fetch app settings after login
+      try {
+        const settings = await settingsService.get()
+        setAppSettings(settings)
+      } catch (err) {
+        console.error('Failed to load settings:', err)
       }
 
-      // Update state
-      setToken(data.token)
-      setRole(data.role)
-      setUser({ id: data._id, name: data.name, email: data.email })
-      setDeviceId(data.deviceId)
-      setLoading(false)
-      
-      return { role: data.role }
-    } catch (error) {
-      console.error('Verify OTP Error:', error)
-      throw error
+      // Fetch reports data if admin
+      if (data.role === 'admin') {
+        try {
+          const charts = await reportService.getCharts()
+          setReportsData(charts)
+        } catch (err) {
+          console.error('Failed to load reports:', err)
+        }
+      }
+
+      return data
+    } catch (err) {
+      throw err
     }
   }
 
-  const verifyCredentials = async (email, password) => {
+  const verifyCredentials = async (studentId) => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/verify-credentials`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ studentId })
       })
-
-      const contentType = response.headers.get('content-type')
-      if (!contentType || !contentType.includes('application/json')) {
-        throw new Error('Server returned non-JSON response. Please check if backend is running.')
-      }
 
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.message || 'Invalid email or password')
+        throw new Error(data.message || 'Invalid Student ID')
       }
 
       return data
-    } catch (error) {
-      console.error('Verify Credentials Error:', error)
-      throw error
+    } catch (err) {
+      throw err
     }
   }
 
-  const logActivity = (userName, action, deviceName) => {
-    const newLog = { id: Date.now(), user: userName, action, device: deviceName, time: new Date().toISOString() }
-
-    setActivityLogs(prev => {
-      const updated = [newLog, ...prev]
-
-      localStorage.setItem('activityLogs', JSON.stringify(updated))
-      
-return updated
-    })
-  }
-
-  const logAudit = (adminName, action, target) => {
-    const newLog = { id: Date.now(), admin: adminName, action, target, time: new Date().toISOString() }
-
-    setAuditLogs(prev => {
-      const updated = [newLog, ...prev]
-
-      localStorage.setItem('auditLogs', JSON.stringify(updated))
-      
-    return updated
-    })
-  }
-
-  const updateSettings = async (newSettings) => {
-    try {
-      const updated = await settingsService.update(newSettings)
-
-      setAppSettings(updated)
-      logAudit(user?.name || 'Admin', 'Updated Settings', JSON.stringify(newSettings))
-    } catch (error) {
-      console.error('Failed to update settings:', error)
-    }
-  }
-
-  const handleLogout = (reason = 'Manual Logout') => {
-    console.log('Logging out. Reason:', reason)
-
-    if (user && deviceId) {
-      logActivity(user.name, 'Logged out', 'Current Device')
-    }
-
-    localStorage.removeItem('token')
-    localStorage.removeItem('role')
-    localStorage.removeItem('user')
-    localStorage.removeItem('deviceId')
-    
-    setToken(null)
-    setRole(null)
-    setUser(null)
-    setDeviceId(null)
-    
-    router.push('/login')
-  }
-
-  const logout = useCallback(() => handleLogout(), [handleLogout])
-
-  const values = useMemo(() => ({
-    user,
-    role,
-    token,
-    loading,
-    deviceId,
-    appSettings,
-    activityLogs,
-    auditLogs,
-    devices,
-    studentsList,
-    coursesList,
-    batchesList,
-    facultyList,
-    paymentsList,
-    testsList,
-    notificationsList,
-    reportsData,
-    setStudentsList,
-    setCoursesList,
-    setBatchesList,
-    setFacultyList,
-    setPaymentsList,
-    setTestsList,
-    setNotificationsList,
-    setDevices,
-    login,
-    sendOTP,
-    verifyOTP,
-    verifyCredentials,
-    logout,
-    logActivity,
-    logAudit,
-    updateSettings
-  }), [
-    user, role, token, loading, deviceId, appSettings, 
-    activityLogs, auditLogs, devices, studentsList, 
-    coursesList, batchesList, facultyList, paymentsList, 
-    testsList, notificationsList, reportsData, 
-    login, sendOTP, verifyOTP, verifyCredentials, logout, updateSettings
-  ])
-
-  return <AuthContext.Provider value={values}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider 
+      value={{ 
+        user, 
+        role: user?.role, 
+        token: user?.token || (typeof window !== 'undefined' ? localStorage.getItem('token') : null),
+        loading, 
+        login, 
+        logout, 
+        sendOTP, 
+        verifyOTP, 
+        verifyCredentials, 
+        appSettings,
+        reportsData 
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  )
 }
 
 export const useAuth = () => useContext(AuthContext)
