@@ -1,6 +1,8 @@
 import User from '../models/User.js';
 import Course from '../models/Course.js';
 import Payment from '../models/Payment.js';
+import Gallery from '../models/Gallery.js';
+import Achiever from '../models/Achiever.js';
 import asyncHandler from 'express-async-handler';
 
 // @desc    Get dashboard stats
@@ -14,11 +16,16 @@ export const getStats = asyncHandler(async (req, res) => {
   const payments = await Payment.find({ status: 'Paid' });
   const totalRevenue = payments.reduce((acc, curr) => acc + curr.amount, 0);
 
+  const achieverCount = await Achiever.countDocuments();
+  const galleryCount = await Gallery.countDocuments();
+
   res.json({
     students: studentCount,
     faculty: facultyCount,
     courses: courseCount,
-    revenue: totalRevenue
+    revenue: totalRevenue,
+    achievers: achieverCount,
+    gallery: galleryCount
   });
 });
 

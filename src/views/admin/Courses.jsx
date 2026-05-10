@@ -15,6 +15,7 @@ import CustomTextField from '@core/components/mui/TextField'
 import CustomDataTable from '@components/CustomDataTable'
 import CustomButton from '@components/CustomButton'
 import CourseDialog from './CourseDialog'
+import CourseAssignmentDialog from './CourseAssignmentDialog'
 import DeleteConfirmationDialog from '@components/DeleteConfirmationDialog'
 
 const columnHelper = createColumnHelper()
@@ -24,6 +25,7 @@ const Courses = () => {
   const [globalFilter, setGlobalFilter] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [openDialog, setOpenDialog] = useState(false)
+  const [openAssignDialog, setOpenAssignDialog] = useState(false)
   const [selectedCourse, setSelectedCourse] = useState(null)
   
   // Delete Dialog States
@@ -70,6 +72,11 @@ const Courses = () => {
     setOpenDialog(true)
   }
 
+  const handleAssign = (course) => {
+    setSelectedCourse(course)
+    setOpenAssignDialog(true)
+  }
+
   const handleAdd = () => {
     setSelectedCourse(null)
     setOpenDialog(true)
@@ -85,7 +92,10 @@ const Courses = () => {
       id: 'actions',
       header: 'Actions',
       cell: ({ row }) => (
-        <div className='flex items-center'>
+        <div className='flex items-center gap-1'>
+          <IconButton size='small' color='primary' onClick={() => handleAssign(row.original)}>
+            <i className='tabler-users-plus' />
+          </IconButton>
           <IconButton onClick={() => handleEdit(row.original)}>
             <i className='tabler-edit text-primary' />
           </IconButton>
@@ -160,6 +170,13 @@ const Courses = () => {
       <CourseDialog 
         open={openDialog} 
         handleClose={() => setOpenDialog(false)} 
+        course={selectedCourse}
+        refreshData={fetchCourses}
+      />
+
+      <CourseAssignmentDialog
+        open={openAssignDialog}
+        handleClose={() => setOpenAssignDialog(false)}
         course={selectedCourse}
         refreshData={fetchCourses}
       />

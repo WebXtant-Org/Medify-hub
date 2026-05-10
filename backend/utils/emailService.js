@@ -5,19 +5,32 @@ let transporter;
 /**
  * Get or create nodemailer transporter
  */
-const getTransporter = () => {
+const getTransporter = async () => {
   if (!transporter) {
     transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true, // use SSL
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
       pool: true,
+      maxConnections: 5,
+      maxMessages: 100,
       tls: {
         rejectUnauthorized: false
       }
     });
+
+    try {
+      await transporter.verify();
+      console.log('[SMTP] Server is ready to take our messages');
+    } catch (error) {
+      console.error('[SMTP ERROR] Transporter verification failed:', error.message);
+      transporter = null;
+      throw error;
+    }
   }
   return transporter;
 };
@@ -53,12 +66,12 @@ export const sendEmailOTP = async (email, otp, userName) => {
   };
 
   try {
-    const currentTransporter = getTransporter();
+    const currentTransporter = await getTransporter();
     await currentTransporter.sendMail(mailOptions);
     console.log(`[EMAIL SUCCESS] OTP sent to ${email}`);
     return true;
   } catch (error) {
-    console.error('Email Send Error:', error.message);
-    throw new Error('Failed to send email OTP. Please check your credentials.');
+    console.error(`[EMAIL ERROR] Failed to send OTP to ${email}:`, error.message);
+    throw new Error('Failed to send email OTP. Please check your credentials or network.');
   }
 };

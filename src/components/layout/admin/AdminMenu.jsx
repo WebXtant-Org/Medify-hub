@@ -39,32 +39,38 @@ const AdminMenu = ({ dictionary, scrollMenu }) => {
           <MenuItem href="/admin/students" icon={<i className='tabler-users' />}>
             Students
           </MenuItem>
-          <MenuItem href="/admin/payments" icon={<i className='tabler-currency-dollar' />}>
+          {/* <MenuItem href="/admin/payments" icon={<i className='tabler-currency-dollar' />}>
             Payments
-          </MenuItem>
+          </MenuItem> */}
           <MenuItem href="/admin/courses" icon={<i className='tabler-book' />}>
             Courses
           </MenuItem>
-          <MenuItem href="/admin/batches" icon={<i className='tabler-stack-2' />}>
+          {/* <MenuItem href="/admin/batches" icon={<i className='tabler-stack-2' />}>
             Batches
-          </MenuItem>
+          </MenuItem> */}
           <MenuItem href="/admin/materials" icon={<i className='tabler-file-text' />}>
             Study Materials
           </MenuItem>
-          <MenuItem href="/admin/faculty" icon={<i className='tabler-user-star' />}>
+          {/* <MenuItem href="/admin/faculty" icon={<i className='tabler-user-star' />}>
             Faculty
-          </MenuItem>
-          <MenuItem href="/admin/tests" icon={<i className='tabler-clipboard-check' />}>
+          </MenuItem> */}
+          {/* <MenuItem href="/admin/tests" icon={<i className='tabler-clipboard-check' />}>
             Tests
-          </MenuItem>
-          <MenuItem href="/admin/reports" icon={<i className='tabler-chart-bar' />}>
+          </MenuItem> */}
+          {/* <MenuItem href="/admin/reports" icon={<i className='tabler-chart-bar' />}>
             Reports
-          </MenuItem>
-          <MenuItem href="/admin/schedule" icon={<i className='tabler-calendar' />}>
+          </MenuItem> */}
+          {/* <MenuItem href="/admin/schedule" icon={<i className='tabler-calendar' />}>
             Schedule
-          </MenuItem>
-          <MenuItem href="/admin/notifications" icon={<i className='tabler-bell' />}>
+          </MenuItem> */}
+          {/* <MenuItem href="/admin/notifications" icon={<i className='tabler-bell' />}>
             Notifications
+          </MenuItem> */}
+          <MenuItem href="/admin/gallery" icon={<i className='tabler-photo' />}>
+            Gallery
+          </MenuItem>
+          <MenuItem href="/admin/achievers" icon={<i className='tabler-trophy' />}>
+            Achievers
           </MenuItem>
           <MenuItem href="/admin/settings" icon={<i className='tabler-settings' />}>
             Settings

@@ -13,7 +13,8 @@ export const courseService = {
   getById: (id) => apiClient(`/courses/${id}`),
   create: (data) => apiClient('/courses', { method: 'POST', body: JSON.stringify(data) }),
   update: (id, data) => apiClient(`/courses/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
-  delete: (id) => apiClient(`/courses/${id}`, { method: 'DELETE' })
+  delete: (id) => apiClient(`/courses/${id}`, { method: 'DELETE' }),
+  assignUsers: (id, userIds) => apiClient(`/courses/${id}/assign-users`, { method: 'POST', body: JSON.stringify({ userIds }) })
 }
 
 export const batchService = {
@@ -70,6 +71,22 @@ export const materialService = {
     method: 'POST', 
     body: formData 
   }),
-  update: (id, data) => apiClient(`/materials/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  update: (id, formData) => apiClient(`/materials/${id}`, { 
+    method: 'PUT', 
+    body: formData 
+  }),
   delete: (id) => apiClient(`/materials/${id}`, { method: 'DELETE' })
+}
+
+export const galleryService = {
+  getAll: () => apiClient('/gallery'),
+  create: (formData) => apiClient('/gallery', { method: 'POST', body: formData }),
+  delete: (id) => apiClient(`/gallery/${id}`, { method: 'DELETE' })
+}
+
+export const achieverService = {
+  getAll: () => apiClient('/achievers'),
+  create: (formData) => apiClient('/achievers', { method: 'POST', body: formData }),
+  update: (id, formData) => apiClient(`/achievers/${id}`, { method: 'PUT', body: formData }),
+  delete: (id) => apiClient(`/achievers/${id}`, { method: 'DELETE' })
 }

@@ -83,4 +83,25 @@ const deleteCourse = async (req, res) => {
   }
 };
 
-export { createCourse, getCourses, updateCourse, deleteCourse };
+const assignUsersToCourse = async (req, res) => {
+  const { userIds } = req.body;
+  const course = await Course.findById(req.params.id);
+
+  if (course) {
+    course.assignedUserIds = userIds;
+    await course.save();
+
+    await ActivityLog.create({
+      userId: req.user._id,
+      action: 'ASSIGN_USERS_TO_COURSE',
+      details: `Assigned ${userIds.length} users to course: ${course.title}`,
+    });
+
+    res.json(course);
+  } else {
+    res.status(404);
+    throw new Error('Course not found');
+  }
+};
+
+export { createCourse, getCourses, updateCourse, deleteCourse, assignUsersToCourse };

@@ -20,9 +20,15 @@ const courseSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['active', 'inactive'],
-      default: 'active',
+      enum: ['Active', 'Draft', 'Archived'],
+      default: 'Draft',
     },
+    assignedUserIds: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
   },
   {
     timestamps: true,

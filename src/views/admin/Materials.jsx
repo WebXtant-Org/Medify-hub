@@ -31,6 +31,7 @@ const Materials = () => {
   const [file, setFile] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isUploading, setIsUploading] = useState(false)
+  const [selectedMaterial, setSelectedMaterial] = useState(null)
   
   // Delete Dialog States
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
@@ -58,8 +59,7 @@ const Materials = () => {
 
   const handleUpload = async e => {
     e.preventDefault()
-
-    if (!file) {
+    if (!selectedMaterial && !file) {
       showToast('Please select a file', 'error')
       return
     }
@@ -76,19 +76,42 @@ const Materials = () => {
       formData.append('description', newMaterial.description)
       formData.append('type', newMaterial.type)
       formData.append('courseId', newMaterial.courseId)
-      formData.append('file', file)
+      if (file) formData.append('file', file)
 
-      const res = await materialService.create(formData)
-      
-      setMaterialsList(prev => [...prev, res])
-      setNewMaterial({ title: '', description: '', type: 'PDF', courseId: '' })
-      setFile(null)
-      showToast('Material uploaded successfully!')
+      if (selectedMaterial) {
+        const res = await materialService.update(selectedMaterial._id, formData)
+        setMaterialsList(prev => prev.map(m => m._id === res._id ? res : m))
+        showToast('Material updated successfully!')
+        handleCancelEdit()
+      } else {
+        const res = await materialService.create(formData)
+        setMaterialsList(prev => [...prev, res])
+        setNewMaterial({ title: '', description: '', type: 'PDF', courseId: '' })
+        setFile(null)
+        showToast('Material uploaded successfully!')
+      }
     } catch (err) {
-      showToast(err.message || 'Upload failed', 'error')
+      showToast(err.message || 'Operation failed', 'error')
     } finally {
       setIsUploading(false)
     }
+  }
+
+  const handleEdit = (material) => {
+    setSelectedMaterial(material)
+    setNewMaterial({
+      title: material.title,
+      description: material.description,
+      type: material.type,
+      courseId: material.courseId?._id || material.courseId
+    })
+    setFile(null)
+  }
+
+  const handleCancelEdit = () => {
+    setSelectedMaterial(null)
+    setNewMaterial({ title: '', description: '', type: 'PDF', courseId: '' })
+    setFile(null)
   }
 
   const handleDeleteClick = (id) => {
@@ -121,10 +144,7 @@ const Materials = () => {
       header: 'Actions',
       cell: ({ row }) => (
         <div className='flex items-center gap-1'>
-          <IconButton size='small' color='primary'>
-            <i className='tabler-users-plus' />
-          </IconButton>
-          <IconButton size='small' color='primary'>
+          <IconButton size='small' color='primary' onClick={() => handleEdit(row.original)}>
             <i className='tabler-edit' />
           </IconButton>
           <IconButton size='small' color='error' onClick={() => handleDeleteClick(row.original._id)}>
@@ -147,10 +167,6 @@ const Materials = () => {
       cell: ({ row }) => (
         <Chip label={row.original.type} color={row.original.type === 'PDF' ? 'primary' : 'warning'} size='small' variant='tonal' />
       )
-    }),
-    columnHelper.accessor('assignedUserIds', {
-      header: 'Assigned Users',
-      cell: ({ row }) => <Typography variant='h6' align='center'>{row.original.assignedUserIds?.length || 0}</Typography>
     })
   ], [materialsList])
 
@@ -171,7 +187,14 @@ const Materials = () => {
       <Grid container spacing={6}>
         <Grid item xs={12} md={4}>
           <Card>
-            <CardHeader title='Upload Material' />
+            <CardHeader 
+              title={selectedMaterial ? 'Update Material' : 'Upload Material'} 
+              action={selectedMaterial && (
+                <IconButton size='small' onClick={handleCancelEdit}>
+                  <i className='tabler-x' />
+                </IconButton>
+              )}
+            />
             <CardContent>
               <form onSubmit={handleUpload} className='flex flex-col gap-4'>
                 <CustomTextField
@@ -227,7 +250,7 @@ const Materials = () => {
                   )}
                 </Box>
                 <CustomButton type='submit' fullWidth disabled={isUploading}>
-                  {isUploading ? 'Uploading...' : 'Upload'}
+                  {isUploading ? (selectedMaterial ? 'Updating...' : 'Uploading...') : (selectedMaterial ? 'Update Material' : 'Upload')}
                 </CustomButton>
               </form>
             </CardContent>

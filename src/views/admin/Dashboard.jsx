@@ -26,7 +26,7 @@ import { useState, useEffect } from 'react'
 const AppReactApexCharts = dynamic(() => import('@/libs/styles/AppReactApexCharts'))
 
 const Dashboard = () => {
-  const [stats, setStats] = useState({ students: 0, faculty: 0, courses: 0, revenue: 0 })
+  const [stats, setStats] = useState({ students: 0, faculty: 0, courses: 0, revenue: 0, achievers: 0, gallery: 0 })
   const [charts, setCharts] = useState({ revenue: [], admissions: [] })
   const [logs, setLogs] = useState([])
   const [batches, setBatches] = useState([])
@@ -128,17 +128,17 @@ const Dashboard = () => {
       </Grid>
       <Grid size={{ xs: 12, sm: 6, md: 3 }}>
         <CardStatsHorizontal
-          title='Faculty'
-          stats={stats.faculty.toString()}
-          avatarIcon='tabler-user-star'
+          title='Gallery'
+          stats={(stats.gallery || 0).toString()}
+          avatarIcon='tabler-photo'
           avatarColor='info'
         />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, md: 3 }}>
         <CardStatsHorizontal
-          title='Fees Collected'
-          stats={`$${stats.revenue}`}
-          avatarIcon='tabler-currency-dollar'
+          title='Achievers'
+          stats={(stats.achievers || 0).toString()}
+          avatarIcon='tabler-trophy'
           avatarColor='success'
         />
       </Grid>
@@ -152,7 +152,7 @@ const Dashboard = () => {
       </Grid>
 
       {/* Analytics Row */}
-      <Grid size={{ xs: 12, md: 8 }}>
+      {/* <Grid size={{ xs: 12, md: 8 }}>
         <Card>
           <CardHeader title='Revenue Growth' subheader='Monthly earnings overview' />
           <CardContent>
@@ -178,10 +178,10 @@ const Dashboard = () => {
             />
           </CardContent>
         </Card>
-      </Grid>
+      </Grid> */}
 
       {/* Tables Row */}
-      <Grid size={{ xs: 12, lg: 8 }}>
+      <Grid size={{ xs: 12 }}>
         <Card>
           <CardHeader 
             title='Recent Activity' 
@@ -216,7 +216,7 @@ const Dashboard = () => {
         </Card>
       </Grid>
 
-      <Grid size={{ xs: 12, lg:4 }}>
+      {/* <Grid size={{ xs: 12, lg:4 }}>
         <Card className='bs-full'>
           <CardHeader title='Upcoming Classes' />
           <CardContent className='flex flex-col gap-4'>
@@ -233,7 +233,7 @@ const Dashboard = () => {
             ))}
           </CardContent>
         </Card>
-      </Grid>
+      </Grid> */}
     </Grid>
   )
 }

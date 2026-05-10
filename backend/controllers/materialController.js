@@ -59,4 +59,49 @@ const getMaterials = async (req, res) => {
   res.json(materials);
 };
 
-export { createMaterial, getMaterials };
+const updateMaterial = async (req, res) => {
+  const material = await Material.findById(req.params.id);
+
+  if (material) {
+    material.title = req.body.title || material.title;
+    material.description = req.body.description || material.description;
+    material.type = req.body.type || material.type;
+    material.courseId = req.body.courseId || material.courseId;
+
+    if (req.file) {
+      material.fileUrl = req.file.path;
+    }
+
+    const updatedMaterial = await material.save();
+
+    await ActivityLog.create({
+      userId: req.user._id,
+      action: 'UPDATE_MATERIAL',
+      details: `Updated material: ${material.title}`,
+    });
+
+    res.json(updatedMaterial);
+  } else {
+    res.status(404);
+    throw new Error('Material not found');
+  }
+};
+
+const deleteMaterial = async (req, res) => {
+  const material = await Material.findById(req.params.id);
+
+  if (material) {
+    await material.deleteOne();
+    await ActivityLog.create({
+      userId: req.user._id,
+      action: 'DELETE_MATERIAL',
+      details: `Deleted material: ${material.title}`,
+    });
+    res.json({ message: 'Material removed' });
+  } else {
+    res.status(404);
+    throw new Error('Material not found');
+  }
+};
+
+export { createMaterial, getMaterials, updateMaterial, deleteMaterial };

@@ -29,13 +29,13 @@ const FooterContent = () => {
         </Link>
       </p>
       {!isBreakpointReached && (
-        <div className='flex items-center gap-4'>
-          <Link href='https://www.medifyhubhealthcaresolution.com/docs' target='_blank' className='text-primary'>
-            Documentation
-          </Link>
-          <Link href='https://www.medifyhubhealthcaresolution.com/support' target='_blank' className='text-primary'>
-            Support
-          </Link>
+        <div className='flex items-center gap-1'>
+          <span className='text-textSecondary text-sm'>
+            Design and Developed by
+          </span>
+          <span className='text-primary font-bold uppercase text-sm'>
+            WEBXTANT
+          </span>
         </div>
       )}
     </div>
