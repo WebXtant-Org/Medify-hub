@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { courses } from '@/data/courses';
+import { apiClient } from '@/api/apiClient';
 import RegistrationModal from './RegistrationModal';
 import WhatsAppFloating from './WhatsAppFloating';
 import './CourseDetails.css';
@@ -10,26 +10,35 @@ const CourseDetails = () => {
     const { id } = useParams();
     const router = useRouter();
     const [course, setCourse] = useState(null);
+    const [loading, setLoading] = useState(true);
     const [openModal, setOpenModal] = useState(false);
 
     useEffect(() => {
-        const foundCourse = courses.find(c => c.id === id);
-        if (foundCourse) {
-            setCourse(foundCourse);
-            window.scrollTo(0, 0);
-        } else {
-            router.push('/');
-        }
+        const fetchCourse = async () => {
+            try {
+                setLoading(true);
+                const data = await apiClient(`/courses/${id}`);
+                setCourse(data);
+                window.scrollTo(0, 0);
+            } catch (err) {
+                console.error('Failed to fetch course details:', err);
+                router.push('/');
+            } finally {
+                setLoading(false);
+            }
+        };
+        if (id) fetchCourse();
     }, [id, router]);
 
-    if (!course) return <div className="loading">Loading...</div>;
+    if (loading) return <div className="loading">Loading...</div>;
+    if (!course) return <div className="loading">Course not found</div>;
 
     return (
         <div className="course-details-page">
             <div className="cd-container">
                 <header className="cd-header">
                     <h1 className="cd-title">{course.title}</h1>
-                    <p className="cd-desc">{course.desc}</p>
+                    <p className="cd-desc">{course.description || course.desc}</p>
                 </header>
 
                 <div className="cd-content">
@@ -44,16 +53,16 @@ const CourseDetails = () => {
                     <div className="cd-info-grid">
                         <div className="cd-info-card">
                             <h4>Duration</h4>
-                            <p>{course.details.duration}</p>
+                            <p>{course.details?.duration || course.duration}</p>
                         </div>
                         <div className="cd-info-card">
                             <h4>Eligibility</h4>
-                            <p>{course.details.eligibility}</p>
+                            <p>{course.details?.eligibility || 'Graduates / Life Science Students'}</p>
                         </div>
                     </div>
 
                     {/* Highlights / Benefits */}
-                    {course.highlights && (
+                    {course.highlights?.length > 0 && (
                         <div className="cd-section">
                             <h3>Key Highlights & Benefits</h3>
                             <ul className="cd-list highlights-list">
@@ -65,17 +74,19 @@ const CourseDetails = () => {
                     )}
 
                     {/* Curriculum */}
-                    <div className="cd-section">
-                        <h3>Curriculum Modules</h3>
-                        <ul className="cd-list">
-                            {course.details.curriculum.map((item, index) => (
-                                <li key={index}>{item}</li>
-                            ))}
-                        </ul>
-                    </div>
+                    {course.details?.curriculum?.length > 0 && (
+                        <div className="cd-section">
+                            <h3>Curriculum Modules</h3>
+                            <ul className="cd-list">
+                                {course.details.curriculum.map((item, index) => (
+                                    <li key={index}>{item}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
 
                     {/* Focus Areas (AMCT) */}
-                    {course.focusAreas && (
+                    {course.focusAreas?.length > 0 && (
                         <div className="cd-section">
                             <h3>Training Focus Areas</h3>
                             <ul className="cd-list">
@@ -101,7 +112,7 @@ const CourseDetails = () => {
                                     <span>Passing Score:</span> {course.examOverview.passingScore}
                                 </div>
                             </div>
-                            {course.examOverview.subjects && (
+                            {course.examOverview.subjects?.length > 0 && (
                                 <div className="exam-subjects">
                                     <h4>Subjects Covered:</h4>
                                     <ul>
@@ -116,7 +127,7 @@ const CourseDetails = () => {
 
                     <div className="cd-section">
                         <h3>Career Path</h3>
-                        <p>{course.details.careerPath}</p>
+                        <p>{course.details?.careerPath || 'Medical Coder, Auditor'}</p>
                     </div>
 
                     <div className="cd-actions">

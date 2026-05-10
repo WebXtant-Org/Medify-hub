@@ -13,10 +13,15 @@ cloudinary.config({
 
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: {
-    folder: 'medify_materials',
-    allowed_formats: ['jpg', 'png', 'pdf', 'mp4', 'mp3', 'docx'],
-    resource_type: 'auto'
+  params: async (req, file) => {
+    const isPDF = file.mimetype === 'application/pdf' || file.originalname.endsWith('.pdf')
+    
+    return {
+      folder: 'medify_materials',
+      resource_type: isPDF ? 'image' : 'auto',
+      access_mode: 'public',
+      flags: isPDF ? 'attachment:false' : undefined
+    }
   }
 });
 

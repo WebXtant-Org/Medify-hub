@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useMemo, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 
 import Card from '@mui/material/Card'
 import CardHeader from '@mui/material/CardHeader'
@@ -14,7 +15,7 @@ import { courseService } from '@/api/adminServices'
 import CustomTextField from '@core/components/mui/TextField'
 import CustomDataTable from '@components/CustomDataTable'
 import CustomButton from '@components/CustomButton'
-import CourseDialog from './CourseDialog'
+// import CourseDialog from './CourseDialog'
 import CourseAssignmentDialog from './CourseAssignmentDialog'
 import DeleteConfirmationDialog from '@components/DeleteConfirmationDialog'
 
@@ -31,6 +32,7 @@ const Courses = () => {
   // Delete Dialog States
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const [courseToDelete, setCourseToDelete] = useState(null)
+  const router = useRouter()
 
   const fetchCourses = useCallback(async () => {
     try {
@@ -68,8 +70,7 @@ const Courses = () => {
   }
 
   const handleEdit = (course) => {
-    setSelectedCourse(course)
-    setOpenDialog(true)
+    router.push(`/admin/courses/edit/${course._id}`)
   }
 
   const handleAssign = (course) => {
@@ -78,8 +79,7 @@ const Courses = () => {
   }
 
   const handleAdd = () => {
-    setSelectedCourse(null)
-    setOpenDialog(true)
+    router.push('/admin/courses/add')
   }
 
   const columns = useMemo(() => [
@@ -119,7 +119,7 @@ const Courses = () => {
     }),
     columnHelper.accessor('price', {
       header: 'Price',
-      cell: ({ row }) => <Typography color='primary' className='font-medium'>${row.original.price}</Typography>
+      cell: ({ row }) => <Typography color='primary' className='font-medium'>₹{row.original.price}</Typography>
     }),
     columnHelper.accessor('status', {
       header: 'Status',
@@ -167,12 +167,12 @@ const Courses = () => {
       />
       <CustomDataTable table={table} isLoading={isLoading} columns={columns} />
       
-      <CourseDialog 
+      {/* <CourseDialog 
         open={openDialog} 
         handleClose={() => setOpenDialog(false)} 
         course={selectedCourse}
         refreshData={fetchCourses}
-      />
+      /> */}
 
       <CourseAssignmentDialog
         open={openAssignDialog}

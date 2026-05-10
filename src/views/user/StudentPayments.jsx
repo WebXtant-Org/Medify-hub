@@ -53,7 +53,7 @@ const StudentPayments = () => {
       <Grid size={{ xs: 12, sm: 6, md: 4 }}>
         <CardStatsHorizontal
           title='Total Paid'
-          stats={`$${totalPaid}`}
+          stats={`₹${totalPaid}`}
           avatarIcon='tabler-wallet'
           avatarColor='success'
         />
@@ -61,7 +61,7 @@ const StudentPayments = () => {
       <Grid size={{ xs: 12, sm: 6, md: 4 }}>
         <CardStatsHorizontal
           title='Pending Balance'
-          stats={`$${pendingBalance}`}
+          stats={`₹${pendingBalance}`}
           avatarIcon='tabler-alert-circle'
           avatarColor='error'
         />
@@ -92,7 +92,7 @@ const StudentPayments = () => {
                    <TableRow><TableCell colSpan={3} align='center'>Loading transactions...</TableCell></TableRow>
                 ) : payments[0]?.installments.map((inst, index) => (
                   <TableRow key={`payment-${index}`}>
-                    <TableCell className='font-medium'>${inst.amount}</TableCell>
+                    <TableCell className='font-medium'>₹{inst.amount}</TableCell>
                     <TableCell>{new Date(inst.date).toLocaleDateString()}</TableCell>
                     <TableCell>
                       <Chip label={inst.status} size='small' color={inst.status === 'paid' ? 'success' : 'warning'} variant='tonal' />

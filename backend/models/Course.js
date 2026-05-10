@@ -20,8 +20,23 @@ const courseSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['Active', 'Draft', 'Archived'],
-      default: 'Draft',
+      enum: ['active', 'draft', 'archived', 'Active', 'Draft', 'Archived'],
+      default: 'active',
+    },
+    fullDescription: String,
+    highlights: [String],
+    focusAreas: [String],
+    details: {
+      duration: String,
+      eligibility: String,
+      curriculum: [String],
+      careerPath: String,
+    },
+    examOverview: {
+      duration: String,
+      pattern: String,
+      passingScore: String,
+      subjects: [String],
     },
     assignedUserIds: [
       {

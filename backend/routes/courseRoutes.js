@@ -1,18 +1,16 @@
 import express from 'express';
-import { createCourse, getCourses, updateCourse, deleteCourse, assignUsersToCourse } from '../controllers/courseController.js';
+import { createCourse, getCourses, getCourseById, updateCourse, deleteCourse, assignUsersToCourse } from '../controllers/courseController.js';
 import { protect, admin } from '../middleware/auth.js';
 
 const router = express.Router();
 
-router.route('/')
-  .post(protect, admin, createCourse)
-  .get(getCourses);
+router.get('/', getCourses);
+router.post('/', protect, admin, createCourse);
 
-router.route('/:id')
-  .put(protect, admin, updateCourse)
-  .delete(protect, admin, deleteCourse);
+router.get('/:id', getCourseById);
+router.put('/:id', protect, admin, updateCourse);
+router.delete('/:id', protect, admin, deleteCourse);
 
-router.route('/:id/assign-users')
-  .post(protect, admin, assignUsersToCourse);
+router.post('/:id/assign-users', protect, admin, assignUsersToCourse);
 
 export default router;

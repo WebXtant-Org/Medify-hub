@@ -100,7 +100,7 @@ const Payments = () => {
     }),
     columnHelper.accessor('amount', {
       header: 'Amount',
-      cell: ({ row }) => <Typography color='primary' className='font-medium'>${row.original.amount}</Typography>
+      cell: ({ row }) => <Typography color='primary' className='font-medium'>₹{row.original.amount}</Typography>
     }),
     columnHelper.accessor('date', {
       header: 'Date',

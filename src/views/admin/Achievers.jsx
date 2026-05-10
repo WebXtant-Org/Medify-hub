@@ -8,6 +8,7 @@ import IconButton from '@mui/material/IconButton'
 import { createColumnHelper, getCoreRowModel, useReactTable, getPaginationRowModel, getSortedRowModel, getFilteredRowModel } from '@tanstack/react-table'
 
 import { achieverService } from '@/api/adminServices'
+import { showToast } from '@/utils/toast'
 import CustomTextField from '@core/components/mui/TextField'
 import CustomDataTable from '@components/CustomDataTable'
 import CustomButton from '@components/CustomButton'
@@ -63,10 +64,11 @@ const Achievers = () => {
     try {
       await achieverService.delete(itemToDelete)
       setItems(prev => prev.filter(i => i._id !== itemToDelete))
+      showToast('Achiever record deleted', 'info', { icon: <i className='tabler-trash' /> })
       setOpenDeleteDialog(false)
       setItemToDelete(null)
     } catch (err) {
-      alert('Failed to delete achiever')
+      showToast('Failed to delete achiever', 'error')
     }
   }
 

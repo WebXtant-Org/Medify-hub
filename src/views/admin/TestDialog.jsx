@@ -14,6 +14,7 @@ import { valibotResolver } from '@hookform/resolvers/valibot'
 import { object, string, minLength, pipe, number } from 'valibot'
 
 import CustomTextField from '@core/components/mui/TextField'
+import CustomAutocomplete from '@components/CustomAutocomplete'
 import DialogCloseButton from '@components/dialogs/DialogCloseButton'
 import CustomButton from '@components/CustomButton'
 import { testService, courseService } from '@/api/adminServices'
@@ -144,22 +145,17 @@ const TestDialog = ({ open, handleClose, test, refreshData }) => {
               <Controller
                 name='courseId'
                 control={control}
-                render={({ field }) => (
-                  <CustomTextField
-                    {...field}
-                    select
-                    fullWidth
+                render={({ field: { value, onChange } }) => (
+                  <CustomAutocomplete
+                    options={courses}
+                    value={value}
+                    onChange={onChange}
                     label='Course'
-                    error={!!errors.courseId}
-                    helperText={errors.courseId?.message}
+                    placeholder='Select Course'
                     required
-                  >
-                    {courses.map(course => (
-                      <MenuItem key={course._id} value={course._id}>
-                        {course.title}
-                      </MenuItem>
-                    ))}
-                  </CustomTextField>
+                    error={errors.courseId}
+                    helperText={errors.courseId?.message}
+                  />
                 )}
               />
             </Grid>
@@ -203,18 +199,16 @@ const TestDialog = ({ open, handleClose, test, refreshData }) => {
               <Controller
                 name='status'
                 control={control}
-                render={({ field }) => (
-                  <CustomTextField
-                    {...field}
-                    select
-                    fullWidth
+                render={({ field: { value, onChange } }) => (
+                  <CustomAutocomplete
+                    options={['draft', 'published']}
+                    value={value}
+                    onChange={onChange}
                     label='Status'
-                    error={!!errors.status}
+                    placeholder='Select Status'
+                    error={errors.status}
                     helperText={errors.status?.message}
-                  >
-                    <MenuItem value='draft'>Draft</MenuItem>
-                    <MenuItem value='published'>Published</MenuItem>
-                  </CustomTextField>
+                  />
                 )}
               />
             </Grid>

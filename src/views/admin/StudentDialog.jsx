@@ -16,6 +16,7 @@ import { valibotResolver } from '@hookform/resolvers/valibot'
 import { object, string, email, minLength, pipe } from 'valibot'
 
 import CustomTextField from '@core/components/mui/TextField'
+import CustomAutocomplete from '@components/CustomAutocomplete'
 import DialogCloseButton from '@components/dialogs/DialogCloseButton'
 import { studentService, courseService, batchService } from '@/api/adminServices'
 import { showToast } from '@/utils/toast'
@@ -247,20 +248,15 @@ const StudentDialog = ({ open, handleClose, student, refreshData }) => {
                 name='courseId'
                 control={control}
                 render={({ field: { onChange, value } }) => (
-                  <Autocomplete
+                  <CustomAutocomplete
                     options={courses}
-                    getOptionLabel={(option) => (typeof option === 'string' ? option : option.title || '')}
-                    value={courses.find((c) => c._id === value) || null}
-                    onChange={(event, newValue) => onChange(newValue ? newValue._id : '')}
-                    renderInput={(params) => (
-                      <CustomTextField
-                        {...params}
-                        label='Course'
-                        required
-                        error={!!errors.courseId}
-                        helperText={errors.courseId?.message}
-                      />
-                    )}
+                    value={value}
+                    onChange={onChange}
+                    label='Course'
+                    placeholder='Select Course'
+                    required
+                    error={errors.courseId}
+                    helperText={errors.courseId?.message}
                   />
                 )}
               />
@@ -270,21 +266,15 @@ const StudentDialog = ({ open, handleClose, student, refreshData }) => {
                 name='batchId'
                 control={control}
                 render={({ field: { onChange, value } }) => (
-                  <Autocomplete
+                  <CustomAutocomplete
                     options={batches}
-                    getOptionLabel={(option) => (typeof option === 'string' ? option : option.name || '')}
-                    value={batches.find((b) => b._id === value) || null}
-                    onChange={(event, newValue) => onChange(newValue ? newValue._id : '')}
-                    renderInput={(params) => (
-                      <CustomTextField
-                        {...params}
-                        label='Batch'
-                        required
-                        error={!!errors.batchId}
-                        helperText={errors.batchId?.message}
-                        sx={{ '& .MuiFormLabel-asterisk': { color: 'error.main' } }}
-                      />
-                    )}
+                    value={value}
+                    onChange={onChange}
+                    label='Batch'
+                    placeholder='Select Batch'
+                    required
+                    error={errors.batchId}
+                    helperText={errors.batchId?.message}
                   />
                 )}
               />
@@ -328,19 +318,16 @@ const StudentDialog = ({ open, handleClose, student, refreshData }) => {
               <Controller
                 name='status'
                 control={control}
-                render={({ field }) => (
-                  <CustomTextField
-                    {...field}
-                    select
-                    fullWidth
+                render={({ field: { value, onChange } }) => (
+                  <CustomAutocomplete
+                    options={['Active', 'Hold', 'Terminated']}
+                    value={value}
+                    onChange={onChange}
                     label='Status'
-                    error={!!errors.status}
+                    placeholder='Select Status'
+                    error={errors.status}
                     helperText={errors.status?.message}
-                  >
-                    <MenuItem value='Active'>Active</MenuItem>
-                    <MenuItem value='Hold'>Hold</MenuItem>
-                    <MenuItem value='Terminated'>Terminated</MenuItem>
-                  </CustomTextField>
+                  />
                 )}
               />
             </Grid>
@@ -348,19 +335,16 @@ const StudentDialog = ({ open, handleClose, student, refreshData }) => {
               <Controller
                 name='feesStatus'
                 control={control}
-                render={({ field }) => (
-                  <CustomTextField
-                    {...field}
-                    select
-                    fullWidth
+                render={({ field: { value, onChange } }) => (
+                  <CustomAutocomplete
+                    options={['Paid', 'Pending', 'Partial']}
+                    value={value}
+                    onChange={onChange}
                     label='Fees Status'
-                    error={!!errors.feesStatus}
+                    placeholder='Select Fees Status'
+                    error={errors.feesStatus}
                     helperText={errors.feesStatus?.message}
-                  >
-                    <MenuItem value='Paid'>Paid</MenuItem>
-                    <MenuItem value='Pending'>Pending</MenuItem>
-                    <MenuItem value='Partial'>Partial</MenuItem>
-                  </CustomTextField>
+                  />
                 )}
               />
             </Grid>

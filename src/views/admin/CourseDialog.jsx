@@ -169,7 +169,7 @@ const CourseDialog = ({ open, handleClose, course, refreshData }) => {
                     {...field}
                     fullWidth
                     type='number'
-                    label='Price ($)'
+                    label='Price (₹)'
                     placeholder='0.00'
                     error={!!errors.price}
                     helperText={errors.price?.message}

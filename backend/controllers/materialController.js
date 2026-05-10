@@ -27,7 +27,8 @@ const createMaterial = async (req, res) => {
       action: 'CREATE_MATERIAL',
       details: `Created material: ${material.title}`,
     });
-    res.status(201).json(material);
+    const populatedMaterial = await Material.findById(material._id).populate('courseId');
+    res.status(201).json(populatedMaterial);
   } else {
     res.status(400);
     throw new Error('Invalid material data');
@@ -45,7 +46,8 @@ const getMaterials = async (req, res) => {
     materials = await Material.find({ 
       $or: [
         { assignedUserIds: req.user._id },
-        { assignedUserIds: { $size: 0 } } // Global materials
+        { assignedUserIds: { $size: 0 }, courseId: { $in: req.user.courseIds || [] } },
+        { assignedUserIds: { $size: 0 }, courseId: null } // Global materials
       ]
     }).populate('courseId');
     
@@ -80,7 +82,8 @@ const updateMaterial = async (req, res) => {
       details: `Updated material: ${material.title}`,
     });
 
-    res.json(updatedMaterial);
+    const populatedMaterial = await Material.findById(updatedMaterial._id).populate('courseId');
+    res.json(populatedMaterial);
   } else {
     res.status(404);
     throw new Error('Material not found');

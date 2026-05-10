@@ -9,8 +9,8 @@ const getTransporter = async () => {
   if (!transporter) {
     transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
-      port: 465,
-      secure: true, // use SSL
+      port: 587,
+      secure: false, // use STARTTLS
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
@@ -19,7 +19,8 @@ const getTransporter = async () => {
       maxConnections: 5,
       maxMessages: 100,
       tls: {
-        rejectUnauthorized: false
+        rejectUnauthorized: false,
+        ciphers:'SSLv3'
       }
     });
 

@@ -14,6 +14,7 @@ import { valibotResolver } from '@hookform/resolvers/valibot'
 import { object, string, minLength, pipe } from 'valibot'
 
 import CustomTextField from '@core/components/mui/TextField'
+import CustomAutocomplete from '@components/CustomAutocomplete'
 import DialogCloseButton from '@components/dialogs/DialogCloseButton'
 import CustomButton from '@components/CustomButton'
 import { batchService, courseService, facultyService } from '@/api/adminServices'
@@ -162,22 +163,17 @@ const BatchDialog = ({ open, handleClose, batch, refreshData }) => {
               <Controller
                 name='courseId'
                 control={control}
-                render={({ field }) => (
-                  <CustomTextField
-                    {...field}
-                    select
-                    fullWidth
+                render={({ field: { value, onChange } }) => (
+                  <CustomAutocomplete
+                    options={courses}
+                    value={value}
+                    onChange={onChange}
                     label='Course'
-                    error={!!errors.courseId}
-                    helperText={errors.courseId?.message}
+                    placeholder='Select Course'
                     required
-                  >
-                    {courses.map(course => (
-                      <MenuItem key={course._id} value={course._id}>
-                        {course.title}
-                      </MenuItem>
-                    ))}
-                  </CustomTextField>
+                    error={errors.courseId}
+                    helperText={errors.courseId?.message}
+                  />
                 )}
               />
             </Grid>
@@ -185,22 +181,17 @@ const BatchDialog = ({ open, handleClose, batch, refreshData }) => {
               <Controller
                 name='facultyId'
                 control={control}
-                render={({ field }) => (
-                  <CustomTextField
-                    {...field}
-                    select
-                    fullWidth
+                render={({ field: { value, onChange } }) => (
+                  <CustomAutocomplete
+                    options={faculties}
+                    value={value}
+                    onChange={onChange}
                     label='Faculty'
-                    error={!!errors.facultyId}
-                    helperText={errors.facultyId?.message}
+                    placeholder='Select Faculty'
                     required
-                  >
-                    {faculties.map(faculty => (
-                      <MenuItem key={faculty._id} value={faculty._id}>
-                        {faculty.name}
-                      </MenuItem>
-                    ))}
-                  </CustomTextField>
+                    error={errors.facultyId}
+                    helperText={errors.facultyId?.message}
+                  />
                 )}
               />
             </Grid>

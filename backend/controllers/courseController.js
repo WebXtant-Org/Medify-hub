@@ -1,17 +1,27 @@
+import asyncHandler from 'express-async-handler';
 import Course from '../models/Course.js';
 import ActivityLog from '../models/ActivityLog.js';
 
 // @desc    Create a new course
 // @route   POST /api/courses
 // @access  Private/Admin
-const createCourse = async (req, res) => {
-  const { title, description, duration, price } = req.body;
+const createCourse = asyncHandler(async (req, res) => {
+  const { 
+    title, description, duration, price, status,
+    fullDescription, highlights, focusAreas, details, examOverview 
+  } = req.body;
 
   const course = await Course.create({
     title,
     description,
     duration,
-    price
+    price,
+    status: status || 'active',
+    fullDescription,
+    highlights,
+    focusAreas,
+    details,
+    examOverview
   });
 
   if (course) {
@@ -25,28 +35,52 @@ const createCourse = async (req, res) => {
     res.status(400);
     throw new Error('Invalid course data');
   }
-};
+});
 
 // @desc    Get all courses
 // @route   GET /api/courses
 // @access  Public
-const getCourses = async (req, res) => {
+const getCourses = asyncHandler(async (req, res) => {
   const courses = await Course.find({});
   res.json(courses);
-};
+});
+
+// @desc    Get single course by ID
+// @route   GET /api/courses/:id
+// @access  Public
+const getCourseById = asyncHandler(async (req, res) => {
+  const course = await Course.findById(req.params.id);
+
+  if (course) {
+    res.json(course);
+  } else {
+    res.status(404);
+    throw new Error('Course not found');
+  }
+});
 
 // @desc    Update a course
 // @route   PUT /api/courses/:id
 // @access  Private/Admin
-const updateCourse = async (req, res) => {
+const updateCourse = asyncHandler(async (req, res) => {
+  const { 
+    title, description, duration, price, status,
+    fullDescription, highlights, focusAreas, details, examOverview 
+  } = req.body;
+
   const course = await Course.findById(req.params.id);
 
   if (course) {
-    course.title = req.body.title || course.title;
-    course.description = req.body.description || course.description;
-    course.duration = req.body.duration || course.duration;
-    course.price = req.body.price || course.price;
-    course.status = req.body.status || course.status;
+    course.title = title || course.title;
+    course.description = description || course.description;
+    course.duration = duration || course.duration;
+    course.price = price || course.price;
+    course.status = status || course.status;
+    course.fullDescription = fullDescription || course.fullDescription;
+    course.highlights = highlights || course.highlights;
+    course.focusAreas = focusAreas || course.focusAreas;
+    course.details = details || course.details;
+    course.examOverview = examOverview || course.examOverview;
 
     const updatedCourse = await course.save();
 
@@ -61,12 +95,12 @@ const updateCourse = async (req, res) => {
     res.status(404);
     throw new Error('Course not found');
   }
-};
+});
 
 // @desc    Delete a course
 // @route   DELETE /api/courses/:id
 // @access  Private/Admin
-const deleteCourse = async (req, res) => {
+const deleteCourse = asyncHandler(async (req, res) => {
   const course = await Course.findById(req.params.id);
 
   if (course) {
@@ -81,9 +115,9 @@ const deleteCourse = async (req, res) => {
     res.status(404);
     throw new Error('Course not found');
   }
-};
+});
 
-const assignUsersToCourse = async (req, res) => {
+const assignUsersToCourse = asyncHandler(async (req, res) => {
   const { userIds } = req.body;
   const course = await Course.findById(req.params.id);
 
@@ -102,6 +136,6 @@ const assignUsersToCourse = async (req, res) => {
     res.status(404);
     throw new Error('Course not found');
   }
-};
+});
 
-export { createCourse, getCourses, updateCourse, deleteCourse, assignUsersToCourse };
+export { createCourse, getCourses, getCourseById, updateCourse, deleteCourse, assignUsersToCourse };

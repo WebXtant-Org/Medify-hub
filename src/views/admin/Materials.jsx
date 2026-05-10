@@ -19,6 +19,7 @@ import CustomButton from '@components/CustomButton'
 import { showToast } from '@/utils/toast'
 import DeleteConfirmationDialog from '@components/DeleteConfirmationDialog'
 import CustomTextField from '@core/components/mui/TextField'
+import CustomAutocomplete from '@components/CustomAutocomplete'
 import { materialService, courseService } from '@/api/adminServices'
 
 const columnHelper = createColumnHelper()
@@ -125,7 +126,7 @@ const Materials = () => {
     try {
       await materialService.delete(materialToDelete)
       setMaterialsList(prev => prev.filter(m => m._id !== materialToDelete))
-      showToast('Material deleted', 'error')
+      showToast('Material deleted', 'error', { icon: <i className='tabler-trash' /> })
       setOpenDeleteDialog(false)
       setMaterialToDelete(null)
     } catch (err) {
@@ -160,6 +161,14 @@ const Materials = () => {
           <Typography variant='body1' className='font-medium' color='text.primary'>{row.original.title}</Typography>
           <Typography variant='body2' color='text.secondary'>{row.original.description}</Typography>
         </div>
+      )
+    }),
+    columnHelper.accessor('courseId', {
+      header: 'Course',
+      cell: ({ row }) => (
+        <Typography color='primary' className='font-medium'>
+          {row.original.courseId?.title || 'General'}
+        </Typography>
       )
     }),
     columnHelper.accessor('type', {
@@ -204,31 +213,21 @@ const Materials = () => {
                   onChange={e => setNewMaterial({ ...newMaterial, title: e.target.value })}
                   required
                 />
-                <CustomTextField
-                  select
-                  fullWidth
-                  label='Type'
+                <CustomAutocomplete
+                  options={['PDF']}
                   value={newMaterial.type}
-                  onChange={e => setNewMaterial({ ...newMaterial, type: e.target.value })}
-                >
-                  <MenuItem value='PDF'>PDF</MenuItem>
-                  <MenuItem value='Video'>Video</MenuItem>
-                  <MenuItem value='Audio'>Audio</MenuItem>
-                </CustomTextField>
-                <CustomTextField
-                  select
-                  fullWidth
-                  label='Course'
+                  onChange={val => setNewMaterial({ ...newMaterial, type: val })}
+                  label='Type'
+                  placeholder='Select Type'
+                />
+                <CustomAutocomplete
+                  options={courses}
                   value={newMaterial.courseId}
-                  onChange={e => setNewMaterial({ ...newMaterial, courseId: e.target.value })}
+                  onChange={val => setNewMaterial({ ...newMaterial, courseId: val })}
+                  label='Course'
+                  placeholder='Select Course'
                   required
-                >
-                  {courses.map(course => (
-                    <MenuItem key={course._id} value={course._id}>
-                      {course.title}
-                    </MenuItem>
-                  ))}
-                </CustomTextField>
+                />
                 <CustomTextField
                   label='Description'
                   fullWidth

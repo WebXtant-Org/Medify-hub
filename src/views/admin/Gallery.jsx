@@ -8,6 +8,7 @@ import IconButton from '@mui/material/IconButton'
 import { createColumnHelper, getCoreRowModel, useReactTable, getPaginationRowModel, getSortedRowModel, getFilteredRowModel } from '@tanstack/react-table'
 
 import { galleryService } from '@/api/adminServices'
+import { showToast } from '@/utils/toast'
 import CustomTextField from '@core/components/mui/TextField'
 import CustomDataTable from '@components/CustomDataTable'
 import CustomButton from '@components/CustomButton'
@@ -52,10 +53,11 @@ const Gallery = () => {
     try {
       await galleryService.delete(itemToDelete)
       setItems(prev => prev.filter(i => i._id !== itemToDelete))
+      showToast('Image removed from gallery', 'info', { icon: <i className='tabler-trash' /> })
       setOpenDeleteDialog(false)
       setItemToDelete(null)
     } catch (err) {
-      alert('Failed to delete item')
+      showToast('Failed to delete item', 'error')
     }
   }
 
