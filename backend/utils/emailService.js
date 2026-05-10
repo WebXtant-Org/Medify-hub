@@ -8,19 +8,15 @@ let transporter;
 const getTransporter = () => {
   if (!transporter) {
     transporter = nodemailer.createTransport({
-      host: '64.233.184.108',
-      port: 465,
-      secure: true,
+      service: 'gmail',
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
+      pool: true,
       tls: {
-        rejectUnauthorized: false,
-        servername: 'smtp.gmail.com'
-      },
-      debug: true,
-      logger: true
+        rejectUnauthorized: false
+      }
     });
   }
   return transporter;
