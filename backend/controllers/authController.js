@@ -68,10 +68,11 @@ const sendOTP = asyncHandler(async (req, res) => {
   user.otpExpires = otpExpires;
   await user.save();
 
-  // Send Email OTP
-  try {
+    // Send Email OTP in background to prevent UI hang
     const targetEmail = user.personalEmail || user.email;
-    await sendEmailOTP(targetEmail, otp, user.name);
+    sendEmailOTP(targetEmail, otp, user.name).catch(err => {
+      console.error('Background Email Error:', err.message);
+    });
     
     res.json({ 
       message: 'OTP sent successfully', 
