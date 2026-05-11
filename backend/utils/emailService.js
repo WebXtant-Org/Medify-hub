@@ -14,24 +14,19 @@ const getTransporter = async () => {
     }
 
     transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false, // use STARTTLS
+      service: 'gmail',
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
       // Force IPv4 at the DNS level to avoid ENETUNREACH error on Render
       lookup: (hostname, options, callback) => {
-        dns.lookup(hostname, { family: 4 }, callback);
+        dns.lookup(hostname || 'smtp.gmail.com', { family: 4 }, callback);
       },
-      // Higher timeouts for cloud environments
-      connectionTimeout: 30000, // 30 seconds
-      greetingTimeout: 30000,
-      socketTimeout: 30000,
-      tls: {
-        rejectUnauthorized: false
-      }
+      // Timeouts
+      connectionTimeout: 20000,
+      greetingTimeout: 20000,
+      socketTimeout: 20000,
     });
 
     try {
