@@ -13,17 +13,18 @@ const getTransporter = async () => {
     }
 
     transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true, // use SSL
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
-      // Pool helps with performance for multiple emails
+      // Pool helps with performance
       pool: true,
       maxConnections: 5,
       maxMessages: 100,
       tls: {
-        // Do not fail on invalid certs
         rejectUnauthorized: false
       }
     });
