@@ -20,6 +20,8 @@ const getTransporter = async () => {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
+      // Force IPv4 to avoid ENETUNREACH error on Render
+      family: 4,
       // Pool helps with performance
       pool: true,
       maxConnections: 5,
