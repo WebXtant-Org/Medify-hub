@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import dns from 'dns';
 
 let transporter;
 
@@ -20,8 +21,10 @@ const getTransporter = async () => {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
-      // Force IPv4 to avoid ENETUNREACH error on Render
-      family: 4,
+      // Force IPv4 at the DNS level to avoid ENETUNREACH error on Render
+      lookup: (hostname, options, callback) => {
+        dns.lookup(hostname, { family: 4 }, callback);
+      },
       // Pool helps with performance
       pool: true,
       maxConnections: 5,
