@@ -25,10 +25,10 @@ const getTransporter = async () => {
       lookup: (hostname, options, callback) => {
         dns.lookup(hostname, { family: 4 }, callback);
       },
-      // Pool helps with performance
-      pool: true,
-      maxConnections: 5,
-      maxMessages: 100,
+      // Higher timeouts for cloud environments
+      connectionTimeout: 30000, // 30 seconds
+      greetingTimeout: 30000,
+      socketTimeout: 30000,
       tls: {
         rejectUnauthorized: false
       }
