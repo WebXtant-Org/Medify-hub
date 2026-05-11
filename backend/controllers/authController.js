@@ -78,8 +78,9 @@ const sendOTP = asyncHandler(async (req, res) => {
       email: targetEmail 
     });
   } catch (error) {
+    console.error('[AUTH ERROR] OTP Send failed:', error.message);
     res.status(500);
-    throw new Error(error.message || 'Could not send email. Please check your credentials.');
+    throw new Error(error.message || 'Could not send email. Please check your SMTP credentials in environment variables.');
   }
 });
 

@@ -7,20 +7,24 @@ let transporter;
  */
 const getTransporter = async () => {
   if (!transporter) {
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      console.error('[SMTP ERROR] EMAIL_USER or EMAIL_PASS is missing in environment variables');
+      throw new Error('Email configuration missing. Please set EMAIL_USER and EMAIL_PASS.');
+    }
+
     transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false, // use STARTTLS
+      service: 'gmail',
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
+      // Pool helps with performance for multiple emails
       pool: true,
       maxConnections: 5,
       maxMessages: 100,
       tls: {
-        rejectUnauthorized: false,
-        ciphers:'SSLv3'
+        // Do not fail on invalid certs
+        rejectUnauthorized: false
       }
     });
 
@@ -30,7 +34,7 @@ const getTransporter = async () => {
     } catch (error) {
       console.error('[SMTP ERROR] Transporter verification failed:', error.message);
       transporter = null;
-      throw error;
+      throw new Error(`SMTP Verification Failed: ${error.message}`);
     }
   }
   return transporter;
@@ -73,6 +77,7 @@ export const sendEmailOTP = async (email, otp, userName) => {
     return true;
   } catch (error) {
     console.error(`[EMAIL ERROR] Failed to send OTP to ${email}:`, error.message);
-    throw new Error('Failed to send email OTP. Please check your credentials or network.');
+    // Return the actual error message so the user can see it in Postman
+    throw new Error(`Email failed: ${error.message}`);
   }
 };
