@@ -1,6 +1,12 @@
 import nodemailer from 'nodemailer';
 import dns from 'dns';
 
+// Force the entire Node process to prefer IPv4 over IPv6
+// This is the most reliable way to fix ENETUNREACH on Render
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder('ipv4first');
+}
+
 let transporter;
 
 /**
