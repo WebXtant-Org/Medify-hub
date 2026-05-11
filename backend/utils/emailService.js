@@ -20,19 +20,20 @@ const getTransporter = async () => {
     }
 
     transporter = nodemailer.createTransport({
-      service: 'gmail',
+      // Using direct IPv4 IP to bypass ENETUNREACH IPv6 error on Render
+      host: '74.125.20.108', 
+      port: 465,
+      secure: true, // use SSL
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
-      // Force IPv4 at the DNS level to avoid ENETUNREACH error on Render
-      lookup: (hostname, options, callback) => {
-        dns.lookup(hostname || 'smtp.gmail.com', { family: 4 }, callback);
+      // Critical: match the certificate name since we are using an IP
+      tls: {
+        servername: 'smtp.gmail.com',
+        rejectUnauthorized: false
       },
-      // Timeouts
       connectionTimeout: 20000,
-      greetingTimeout: 20000,
-      socketTimeout: 20000,
     });
 
     try {
