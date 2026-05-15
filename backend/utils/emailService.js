@@ -66,9 +66,10 @@ export const sendEmailOTP = async (email, otp, userName) => {
       `;
 
     if (type === 'resend') {
-      console.log(`[EMAIL] Sending via Resend to ${email}...`);
+      const fromEmail = process.env.RESEND_FROM_EMAIL || 'Medify Hub <onboarding@resend.dev>';
+      console.log(`[EMAIL] Sending via Resend from ${fromEmail} to ${email}...`);
       const { data, error } = await client.emails.send({
-        from: 'Medify Hub <onboarding@resend.dev>',
+        from: fromEmail,
         to: email,
         subject,
         html: htmlContent,
