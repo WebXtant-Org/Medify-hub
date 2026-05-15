@@ -8,9 +8,8 @@ let nodemailerTransporter;
  * Initialize Email Clients
  */
 const getEmailClient = () => {
-  // Try Resend first
+  // Try Resend first (Recommended for Production)
   const resendKey = process.env.RESEND_API_KEY;
-  console.log('[DEBUG EMAIL] Checking RESEND_API_KEY:', resendKey ? 'FOUND (Hidden)' : 'NOT FOUND');
   if (resendKey) {
     if (!resendClient) {
       resendClient = new Resend(resendKey);
@@ -19,22 +18,15 @@ const getEmailClient = () => {
     return { type: 'resend', client: resendClient };
   }
 
-  // Fallback to Nodemailer
+  // Fallback to Nodemailer (Good for Local development)
   const user = process.env.EMAIL_USER;
   const pass = process.env.EMAIL_PASS;
 
   if (user && pass) {
-    console.log('[DEBUG EMAIL] Using Nodemailer with user:', user);
     if (!nodemailerTransporter) {
       nodemailerTransporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 465,
-        secure: true, // SSL
-        family: 4, // Force IPv4
+        service: 'gmail',
         auth: { user, pass },
-        connectionTimeout: 10000, // 10s
-        greetingTimeout: 10000,
-        socketTimeout: 10000,
       });
       console.log('[EMAIL] Initialized Nodemailer (Gmail) fallback.');
     }
@@ -76,6 +68,7 @@ export const sendEmailOTP = async (email, otp, userName) => {
     if (type === 'resend') {
       const fromEmail = process.env.RESEND_FROM_EMAIL || 'Medify Hub <onboarding@resend.dev>';
       console.log(`[EMAIL] Sending via Resend from ${fromEmail} to ${email}...`);
+      
       const { data, error } = await client.emails.send({
         from: fromEmail,
         to: email,
@@ -117,4 +110,3 @@ export const verifyConnection = async () => {
     return false;
   }
 };
-
