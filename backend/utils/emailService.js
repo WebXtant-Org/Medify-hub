@@ -30,6 +30,7 @@ const getEmailClient = () => {
         host: 'smtp.gmail.com',
         port: 465,
         secure: true, // SSL
+        family: 4, // Force IPv4
         auth: { user, pass },
         connectionTimeout: 10000, // 10s
         greetingTimeout: 10000,
