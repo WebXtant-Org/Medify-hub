@@ -10,6 +10,7 @@ let nodemailerTransporter;
 const getEmailClient = () => {
   // Try Resend first (Recommended for Production)
   const resendKey = process.env.RESEND_API_KEY;
+  console.log('[DEBUG] RESEND_API_KEY length:', resendKey ? resendKey.length : 'NOT FOUND');
   if (resendKey) {
     if (!resendClient) {
       resendClient = new Resend(resendKey);
