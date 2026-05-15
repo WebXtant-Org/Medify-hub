@@ -39,7 +39,7 @@ const UserMenu = ({ dictionary, scrollMenu }) => {
           <MenuItem href="/dashboard/learning" icon={<i className='tabler-book' />}>
             Study Materials
           </MenuItem>
-          <MenuItem href="/dashboard/payments" icon={<i className='tabler-currency-dollar' />}>
+          {/* <MenuItem href="/dashboard/payments" icon={<i className='tabler-currency-dollar' />}>
             Payments
           </MenuItem>
           <MenuItem href="/dashboard/tests" icon={<i className='tabler-clipboard-check' />}>
@@ -47,13 +47,13 @@ const UserMenu = ({ dictionary, scrollMenu }) => {
           </MenuItem>
           <MenuItem href="/dashboard/schedule" icon={<i className='tabler-calendar' />}>
             Schedule
-          </MenuItem>
+          </MenuItem> */}
           <MenuItem href="/dashboard/profile" icon={<i className='tabler-user' />}>
             Profile
           </MenuItem>
-          <MenuItem href="/dashboard/notifications" icon={<i className='tabler-bell' />}>
+          {/* <MenuItem href="/dashboard/notifications" icon={<i className='tabler-bell' />}>
             Notifications
-          </MenuItem>
+          </MenuItem> */}
         </MenuSection>
       </Menu>
     </ScrollWrapper>

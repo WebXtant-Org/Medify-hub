@@ -11,12 +11,17 @@ import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
+import IconButton from '@mui/material/IconButton'
+import Breadcrumbs from '@mui/material/Breadcrumbs'
+import Link from '@mui/material/Link'
 
 import { studentService } from '@/api/studentServices'
 
 const Learning = () => {
   const router = useRouter()
   const [materials, setMaterials] = useState([])
+  const [groupedMaterials, setGroupedMaterials] = useState({})
+  const [selectedCourse, setSelectedCourse] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -25,6 +30,24 @@ const Learning = () => {
         setLoading(true)
         const data = await studentService.getMaterials()
         setMaterials(data)
+        
+        // Group materials by course
+        const grouped = data.reduce((acc, material) => {
+          const courseId = material.courseId?._id || 'other'
+          const courseTitle = material.courseId?.title || 'Other Materials'
+          
+          if (!acc[courseId]) {
+            acc[courseId] = {
+              id: courseId,
+              title: courseTitle,
+              materials: []
+            }
+          }
+          acc[courseId].materials.push(material)
+          return acc
+        }, {})
+        
+        setGroupedMaterials(grouped)
       } catch (error) {
         console.error('Failed to fetch materials:', error)
       } finally {
@@ -35,16 +58,15 @@ const Learning = () => {
     fetchMaterials()
   }, [])
 
-  return (
-    <Grid container spacing={6}>
-      <Grid size={{ xs: 12 }}>
-        <Typography variant='h4'>My Learning Materials</Typography>
-        <Typography variant='body2' color='text.secondary'>Access your study guides, PDFs, and resources assigned by your instructors.</Typography>
-      </Grid>
+  const handleBack = () => {
+    setSelectedCourse(null)
+  }
 
-      {loading ? (
-        <Typography sx={{ p: 6 }}>Loading materials...</Typography>
-      ) : materials.length === 0 ? (
+  if (loading) return <Typography sx={{ p: 6 }}>Loading study materials...</Typography>
+
+  if (materials.length === 0) {
+    return (
+      <Grid container spacing={6}>
         <Grid size={{ xs: 12 }}>
           <Card>
             <CardContent className='flex flex-col items-center justify-center p-12'>
@@ -56,10 +78,42 @@ const Learning = () => {
             </CardContent>
           </Card>
         </Grid>
-      ) : (
-        materials.map((material) => (
+      </Grid>
+    )
+  }
+
+  // If a course is selected, show its materials
+  if (selectedCourse) {
+    const course = groupedMaterials[selectedCourse]
+    return (
+      <Grid container spacing={6}>
+        <Grid size={{ xs: 12 }}>
+          <Box className='flex flex-col gap-2'>
+            <Breadcrumbs aria-label='breadcrumb'>
+              <Link
+                underline='hover'
+                color='inherit'
+                href='#'
+                onClick={(e) => { e.preventDefault(); handleBack(); }}
+                className='flex items-center gap-1'
+              >
+                <i className='tabler-book text-lg' />
+                Study Materials
+              </Link>
+              <Typography color='text.primary'>{course.title}</Typography>
+            </Breadcrumbs>
+            <Box className='flex items-center gap-2 mt-2'>
+              <IconButton onClick={handleBack} color='primary' className='bg-primary/10'>
+                <i className='tabler-arrow-left' />
+              </IconButton>
+              <Typography variant='h4'>{course.title}</Typography>
+            </Box>
+          </Box>
+        </Grid>
+
+        {course.materials.map((material) => (
           <Grid size={{ xs: 12, sm: 6, md: 4 }} key={material._id}>
-            <Card className='h-full flex flex-col hover:shadow-lg transition-shadow duration-300'>
+            <Card className='h-full flex flex-col hover:shadow-lg transition-shadow duration-300 border-t-4 border-t-primary'>
               <CardContent className='flex flex-col gap-4 flex-grow'>
                 <div className='flex justify-between items-start'>
                   <Avatar variant='rounded' className='bg-info/10 text-info bs-12 is-12'>
@@ -69,20 +123,15 @@ const Learning = () => {
                 </div>
                 
                 <div>
-                  <Typography variant='h5' className='mb-1 line-clamp-1'>{material.title}</Typography>
-                  <Typography variant='body2' color='text.secondary' className='line-clamp-2'>
+                  <Typography variant='h6' className='mb-1 line-clamp-1'>{material.title}</Typography>
+                  <Typography variant='body2' color='text.secondary' className='line-clamp-2 mb-3'>
                     {material.description || 'No description available.'}
                   </Typography>
-                </div>
-
-                {material.courseId && (
-                  <Box className='flex items-center gap-1.5'>
-                    <i className='tabler-school text-info' />
-                    <Typography variant='caption' color='info.main' className='font-medium'>
-                      {material.courseId.title}
-                    </Typography>
+                  <Box className='flex items-center gap-1 text-xs text-text-secondary'>
+                    <i className='tabler-calendar-event' />
+                    <span>Added: {new Date(material.createdAt).toLocaleDateString()}</span>
                   </Box>
-                )}
+                </div>
 
                 <Button 
                   variant='contained' 
@@ -96,8 +145,58 @@ const Learning = () => {
               </CardContent>
             </Card>
           </Grid>
-        ))
-      )}
+        ))}
+      </Grid>
+    )
+  }
+
+  // Initial View: Grouped by Course
+  return (
+    <Grid container spacing={6}>
+      <Grid size={{ xs: 12 }}>
+        <Typography variant='h4'>Study Materials</Typography>
+        <Typography variant='body2' color='text.secondary'>Select a course to view its assigned study materials and resources.</Typography>
+      </Grid>
+
+      {Object.values(groupedMaterials).map((course) => (
+        <Grid size={{ xs: 12, sm: 6, md: 4 }} key={course.id}>
+          <Card 
+            className='h-full cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border-s-4 border-s-primary'
+            onClick={() => setSelectedCourse(course.id)}
+          >
+            <CardContent className='flex flex-col gap-4'>
+              <Box className='flex justify-between items-center'>
+                <Avatar variant='rounded' className='bg-primary/10 text-primary bs-14 is-14'>
+                  <i className='tabler-folder text-3xl' />
+                </Avatar>
+                <Chip 
+                  label={`${course.materials.length} Materials`} 
+                  color='info' 
+                  variant='tonal' 
+                  size='small' 
+                  icon={<i className='tabler-file-description' />}
+                />
+              </Box>
+              
+              <div>
+                <Typography variant='h5' className='mb-1'>{course.title}</Typography>
+                <Typography variant='body2' color='text.secondary'>
+                  Click to explore resources for this course.
+                </Typography>
+              </div>
+
+              <Box className='flex justify-end'>
+                <Button 
+                  endIcon={<i className='tabler-chevron-right' />}
+                  onClick={(e) => { e.stopPropagation(); setSelectedCourse(course.id); }}
+                >
+                  Open Folder
+                </Button>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      ))}
     </Grid>
   )
 }

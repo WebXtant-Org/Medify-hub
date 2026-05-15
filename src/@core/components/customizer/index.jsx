@@ -79,6 +79,8 @@ const DebouncedColorPicker = props => {
 }
 
 const Customizer = ({ breakpoint = 'lg', dir = 'ltr', disableDirection = false }) => {
+  return null
+
   // States
   const [isOpen, setIsOpen] = useState(false)
   const [direction, setDirection] = useState(dir)

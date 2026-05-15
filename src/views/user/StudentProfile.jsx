@@ -83,16 +83,16 @@ const StudentProfile = () => {
           <CardContent className='flex flex-col gap-6'>
             <Grid container spacing={4}>
               <Grid size={{ xs: 12, sm: 6 }}>
-                <CustomTextField fullWidth label='Full Name' value={user.name || ''} readOnly />
+                <CustomTextField fullWidth label='Full Name' value={user.name || ''} slotProps={{ input: { readOnly: true } }} />
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
-                <CustomTextField fullWidth label='Personal Email' value={user.personalEmail || ''} readOnly />
+                <CustomTextField fullWidth label='Personal Email' value={user.personalEmail || ''} slotProps={{ input: { readOnly: true } }} />
               </Grid>
               <Grid size={{ xs: 12 }}>
-                <CustomTextField fullWidth label='Institutional Email' value={user.email || ''} disabled />
+                <CustomTextField fullWidth label='Institutional Email' value={user.email || ''} disabled slotProps={{ input: { readOnly: true } }} />
               </Grid>
               <Grid size={{ xs: 12 }}>
-                <CustomTextField fullWidth label='Mobile' value={user.mobile || ''} readOnly />
+                <CustomTextField fullWidth label='Mobile' value={user.mobile || ''} slotProps={{ input: { readOnly: true } }} />
               </Grid>
             </Grid>
             <Typography variant='body2' color='text.secondary'>

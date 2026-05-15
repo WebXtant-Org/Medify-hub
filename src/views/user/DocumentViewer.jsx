@@ -10,6 +10,8 @@ import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
 import IconButton from '@mui/material/IconButton'
 import Button from '@mui/material/Button'
+import Avatar from '@mui/material/Avatar'
+import Chip from '@mui/material/Chip'
 
 import { useAuth } from '@/contexts/AuthContext'
 import { studentService } from '@/api/studentServices'
@@ -20,11 +22,13 @@ const DocumentViewer = () => {
   const materialId = searchParams.get('id')
   const router = useRouter()
   
-  const { user, appSettings } = useAuth()
-  const [timestamp, setTimestamp] = useState('')
+  const { user } = useAuth()
   const [material, setMaterial] = useState(null)
   const [loading, setLoading] = useState(true)
- 
+  
+  // Floating Watermark Position
+  const [wmPos, setWmPos] = useState({ top: '30%', left: '30%' })
+
   const fetchMaterial = useCallback(async () => {
     if (!materialId) return
     try {
@@ -42,50 +46,54 @@ const DocumentViewer = () => {
   useEffect(() => {
     fetchMaterial()
   }, [fetchMaterial])
- 
+
+  // Move watermark randomly every 6 seconds
   useEffect(() => {
-    setTimestamp(new Date().toLocaleString())
-    const interval = setInterval(() => setTimestamp(new Date().toLocaleString()), 1000)
+    const interval = setInterval(() => {
+      setWmPos({
+        top: `${Math.floor(Math.random() * 70 + 10)}%`,
+        left: `${Math.floor(Math.random() * 60 + 5)}%`
+      })
+    }, 6000)
     return () => clearInterval(interval)
   }, [])
  
-  // Security Measures
+  // Professional Security Measures (Stable)
   useEffect(() => {
     const handleContextMenu = e => {
       e.preventDefault()
-      showToast('Right-click is disabled for security.', 'warning')
     }
  
     const handleKeyDown = e => {
-      // Disable Print (Ctrl+P), Save (Ctrl+S), Copy (Ctrl+C), DevTools (F12)
+      // Block common shortcuts
       if (
         (e.ctrlKey || e.metaKey) &&
-        (e.key === 'p' || e.key === 's' || e.key === 'c' || e.key === 'u' || e.key === 'a')
+        ['p', 's', 'c', 'u', 'a', 'i', 'j', 'k'].includes(e.key.toLowerCase())
       ) {
         e.preventDefault()
-        showToast(`Action '${e.key.toUpperCase()}' is restricted for this document.`, 'error')
+        showToast('Action restricted for security.', 'warning')
+        return false
       }
-      if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C'))) {
+      
+      // DevTools
+      if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key))) {
         e.preventDefault()
-        showToast('Developer tools are disabled.', 'error')
+        showToast('Developer tools restricted.', 'error')
       }
-    }
- 
-    // Attempt to block Print Screen (limited support)
-    const handleKeyUp = e => {
-      if (e.key === 'PrintScreen') {
+
+      // PrintScreen
+      if (e.key === 'PrintScreen' || e.key === 'Snapshot') {
         showToast('Screenshots are strictly prohibited!', 'error')
+        navigator.clipboard.writeText('Protected Content - Medify Hub')
       }
     }
- 
+
     document.addEventListener('contextmenu', handleContextMenu)
     document.addEventListener('keydown', handleKeyDown)
-    document.addEventListener('keyup', handleKeyUp)
  
     return () => {
       document.removeEventListener('contextmenu', handleContextMenu)
       document.removeEventListener('keydown', handleKeyDown)
-      document.removeEventListener('keyup', handleKeyUp)
     }
   }, [])
  
@@ -101,10 +109,7 @@ const DocumentViewer = () => {
     return (
       <Box className='bs-full flex flex-col items-center justify-center p-12 gap-4'>
         <Typography variant='h5'>Material Not Found</Typography>
-        <Typography color='text.secondary'>The requested study material does not exist or you don't have access.</Typography>
-        <IconButton onClick={() => router.back()} color='primary'>
-           <i className='tabler-arrow-left' /> Back
-        </IconButton>
+        <Button variant='contained' onClick={() => router.back()}>Back to Courses</Button>
       </Box>
     )
   }
@@ -113,127 +118,123 @@ const DocumentViewer = () => {
   const isPDF = material.type === 'PDF'
  
   return (
-    <Box className='bs-full flex flex-col gap-4'>
-      <div className='flex items-center justify-between'>
-        <div className='flex gap-2'>
-          <Button 
-            variant='tonal' 
-            color='info' 
-            size='small' 
-            startIcon={<i className='tabler-refresh' />}
-            onClick={() => window.location.reload()}
-          >
-            Refresh
-          </Button>
-          <IconButton onClick={() => router.back()} variant='tonal' color='secondary'>
-             <i className='tabler-x' />
+    <Box className='bs-full flex flex-col gap-4 relative'>
+      {/* Header */}
+      <Box className='flex items-center justify-between'>
+        <div className='flex items-center gap-3'>
+          <IconButton onClick={() => router.back()} color='secondary' className='bg-secondary/10'>
+             <i className='tabler-arrow-left' />
           </IconButton>
-        </div>
-      </div>
- 
-      <Card className='bs-[85vh] flex flex-col relative overflow-hidden select-none border shadow-lg' sx={{ 
-        '& *': { userSelect: 'none !important' },
-        '@media print': { display: 'none !important' },
-        borderRadius: '12px'
-      }}>
-        {/* Professional Viewer Header */}
-        <Box className='px-6 py-3 bg-[#232734] border-b border-gray-700 flex items-center justify-between'>
-          <div className='flex items-center gap-3'>
-            <div className='p-2 bg-[#7367f022] rounded-lg'>
-               <i className='tabler-file-text text-[#7367f0]' />
-            </div>
-            <div>
-              <Typography variant='subtitle1' className='text-white font-bold leading-none'>
-                {material.title}
-              </Typography>
-              <Typography variant='caption' className='text-gray-400'>
-                Secure Viewer Mode
-              </Typography>
-            </div>
-          </div>
-          <div className='flex items-center gap-2 px-3 py-1 bg-red-500/10 border border-red-500/20 rounded-full'>
-            <i className='tabler-shield-lock text-red-500 text-xs' />
-            <Typography sx={{ fontSize: '10px' }} className='text-red-500 font-bold uppercase tracking-wider'>
-              Protected Content
+          <div>
+            <Typography variant='h5' className='font-bold leading-tight'>
+              {material.title}
+            </Typography>
+            <Typography variant='caption' color='text.secondary' className='flex items-center gap-1'>
+               <i className='tabler-school text-xs' /> {material.courseId?.title || 'Study Material'}
             </Typography>
           </div>
+        </div>
+        <Box className='flex items-center gap-2'>
+           <Chip label="Protected Access" color="error" size="small" variant="tonal" icon={<i className='tabler-shield-lock' />} />
+           <Button variant='tonal' size='small' startIcon={<i className='tabler-refresh' />} onClick={() => window.location.reload()}>Refresh</Button>
+        </Box>
+      </Box>
+ 
+      <Card 
+        className='bs-[82vh] flex flex-col relative overflow-hidden select-none border shadow-2xl'
+        sx={{ 
+          '& *': { userSelect: 'none !important' },
+          '@media print': { display: 'none !important' },
+          borderRadius: '16px',
+          background: '#0f111a'
+        }}
+      >
+        {/* Viewer Toolbar */}
+        <Box className='px-6 py-4 bg-[#1a1c27] flex items-center justify-between border-b border-white/5'>
+          <div className='flex items-center gap-3'>
+            <Avatar variant='rounded' className='bg-primary/20 text-primary'>
+               <i className={isPDF ? 'tabler-file-type-pdf' : isVideo ? 'tabler-player-play' : 'tabler-file-text'} />
+            </Avatar>
+            <div className='flex flex-col'>
+              <Typography variant='subtitle2' className='text-white font-bold leading-none'>
+                {material.title}
+              </Typography>
+              <Typography sx={{ fontSize: '10px' }} className='text-blue-400 font-bold mt-1 uppercase'>
+                Secure Study Environment
+              </Typography>
+            </div>
+          </div>
+          
+          <Box className='flex items-center gap-4 bg-white/5 px-4 py-2 rounded-xl border border-white/10'>
+              <div className='flex flex-col items-end'>
+                <Typography sx={{ fontSize: '8px' }} className='text-gray-500 uppercase'>Student ID</Typography>
+                <Typography sx={{ fontSize: '12px' }} className='text-white font-mono'>{user?.studentId}</Typography>
+              </div>
+              <div className='w-[1px] h-6 bg-white/10' />
+              <div className='flex flex-col items-start'>
+                <Typography sx={{ fontSize: '8px' }} className='text-gray-500 uppercase'>Name</Typography>
+                <Typography sx={{ fontSize: '12px' }} className='text-white font-bold'>{user?.name}</Typography>
+              </div>
+          </Box>
         </Box>
  
-        <CardContent className='flex-grow p-0 relative bg-[#2f3349]'>
+        <CardContent className='flex-grow p-0 relative bg-[#12141c] flex items-center justify-center overflow-hidden'>
           {isPDF ? (
             <Box className='bs-full is-full relative'>
               <iframe
-                src={`${material.fileUrl}#toolbar=0`}
+                src={`${material.fileUrl}#toolbar=0&navpanes=0`}
                 className='bs-full is-full border-none'
                 title={material.title}
-                style={{ backgroundColor: 'white' }}
               />
             </Box>
           ) : isVideo ? (
             <video 
               controls 
               controlsList="nodownload" 
+              disablePictureInPicture
               className='bs-full is-full'
-              style={{ objectFit: 'contain' }}
             >
               <source src={material.fileUrl} type="video/mp4" />
-              Your browser does not support the video tag.
             </video>
           ) : (
-            <div className='flex items-center justify-center bs-full'>
-              <Typography color='white'>Preview not available for this file type.</Typography>
-            </div>
+            <Typography color='white'>Format not supported</Typography>
           )}
  
-          {/* High Security Watermark Overlay */}
-          {appSettings?.watermarkEnable !== false && (
-            <Box
-              className='absolute inset-0 pointer-events-none flex flex-wrap items-center justify-around select-none'
-              sx={{ 
-                zIndex: 100, 
-                opacity: 0.1,
-                overflow: 'hidden'
-              }}
-            >
-              {Array.from({ length: 16 }).map((_, i) => (
-                <div key={i} className='transform -rotate-45 m-20 text-center pointer-events-none'>
-                  <Typography 
-                    variant='h2' 
-                    className='font-black whitespace-nowrap text-white' 
-                    sx={{ 
-                      fontSize: '4rem !important',
-                      letterSpacing: '8px',
-                      opacity: 0.5,
-                      textShadow: '0px 0px 20px rgba(255,255,255,0.2)'
-                    }}
-                  >
-                    MEDIFY HUB
-                  </Typography>
-                  <Typography 
-                    variant='h6' 
-                    className='whitespace-nowrap text-white font-bold'
-                    sx={{ opacity: 0.4 }}
-                  >
-                    {user?.name} | {user?.studentId}
-                  </Typography>
-                </div>
-              ))}
+          {/* Static Grid Watermark */}
+          <Box
+            className='absolute inset-0 pointer-events-none flex flex-wrap items-center justify-around select-none'
+            sx={{ zIndex: 90, opacity: 0.04, overflow: 'hidden' }}
+          >
+            {Array.from({ length: 25 }).map((_, i) => (
+              <Typography key={i} variant='h2' className='transform -rotate-45 m-20 whitespace-nowrap text-white font-black'>
+                {user?.studentId}
+              </Typography>
+            ))}
+          </Box>
+
+          {/* Dynamic Floating Watermark */}
+          <Box
+            className='absolute pointer-events-none select-none transition-all duration-1000 ease-in-out'
+            sx={{ 
+              zIndex: 200, 
+              top: wmPos.top, 
+              left: wmPos.left,
+              opacity: 0.4
+            }}
+          >
+            <Box className='bg-primary/10 backdrop-blur-md border border-primary/20 px-3 py-1 rounded shadow-2xl'>
+               <Typography sx={{ fontSize: '14px' }} className='text-white font-black tracking-tighter'>
+                  {user?.studentId}
+               </Typography>
+               <Typography sx={{ fontSize: '9px' }} className='text-white/60 font-medium'>
+                  {user?.name}
+               </Typography>
             </Box>
-          )}
+          </Box>
         </CardContent>
       </Card>
-      
-      <Box className='flex flex-col items-center gap-1'>
-        <Typography variant='caption' color='text.secondary'>
-          If the document fails to load, please use the <b>Open in New Tab</b> button at the top right.
-        </Typography>
-        <Typography variant='caption' color='error' className='text-center flex items-center justify-center gap-1 font-medium'>
-          <i className='tabler-shield-lock' />
-          Secure Content: Printing and Screenshots are strictly prohibited.
-        </Typography>
-      </Box>
     </Box>
   )
 }
-
+ 
 export default DocumentViewer
