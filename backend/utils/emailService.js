@@ -1,50 +1,40 @@
+import { Resend } from 'resend';
 import nodemailer from 'nodemailer';
-import dns from 'dns';
 
-// Force the entire Node process to prefer IPv4 over IPv6
-// This is the most reliable way to fix ENETUNREACH on Render
-if (dns.setDefaultResultOrder) {
-  dns.setDefaultResultOrder('ipv4first');
-}
-
-let transporter;
+let resendClient;
+let nodemailerTransporter;
 
 /**
- * Get or create nodemailer transporter
+ * Initialize Email Clients
  */
-const getTransporter = async () => {
-  if (!transporter) {
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-      console.error('[SMTP ERROR] EMAIL_USER or EMAIL_PASS is missing in environment variables');
-      throw new Error('Email configuration missing. Please set EMAIL_USER and EMAIL_PASS.');
+const getEmailClient = () => {
+  // Try Resend first
+  const resendKey = process.env.RESEND_API_KEY;
+  if (resendKey) {
+    if (!resendClient) {
+      resendClient = new Resend(resendKey);
+      console.log('[EMAIL] Initialized Resend client.');
     }
-
-    transporter = nodemailer.createTransport({
-      // Using direct IPv4 IP to bypass ENETUNREACH IPv6 error on Render
-      host: '74.125.20.108', 
-      port: 587,
-      secure: false, // use STARTTLS
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-      tls: {
-        servername: 'smtp.gmail.com',
-        rejectUnauthorized: false
-      },
-      connectionTimeout: 20000,
-    });
-
-    try {
-      await transporter.verify();
-      console.log('[SMTP] Server is ready to take our messages');
-    } catch (error) {
-      console.error('[SMTP ERROR] Transporter verification failed:', error.message);
-      transporter = null;
-      throw new Error(`SMTP Verification Failed: ${error.message}`);
-    }
+    return { type: 'resend', client: resendClient };
   }
-  return transporter;
+
+  // Fallback to Nodemailer
+  const user = process.env.EMAIL_USER;
+  const pass = process.env.EMAIL_PASS;
+
+  if (user && pass) {
+    if (!nodemailerTransporter) {
+      nodemailerTransporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: { user, pass },
+      });
+      console.log('[EMAIL] Initialized Nodemailer (Gmail) fallback.');
+    }
+    return { type: 'nodemailer', client: nodemailerTransporter };
+  }
+
+  console.error('[EMAIL ERROR] No email configuration found. Please set RESEND_API_KEY or EMAIL_USER/PASS.');
+  throw new Error('Email configuration missing.');
 };
 
 /**
@@ -54,37 +44,68 @@ const getTransporter = async () => {
  * @param {string} userName - User's name for personalization
  */
 export const sendEmailOTP = async (email, otp, userName) => {
-  const mailOptions = {
-    from: `"Medify Hub" <${process.env.EMAIL_USER}>`,
-    to: email,
-    subject: 'Your Login OTP for Medify Hub',
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
-        <h2 style="color: #7367f0; text-align: center;">Medify Hub OTP Verification</h2>
-        <p>Hello <strong>${userName}</strong>,</p>
-        <p>You requested a login OTP for your Medify Hub account. Please use the 6-digit code below to proceed:</p>
-        <div style="text-align: center; margin: 30px 0;">
-          <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #333; background: #f4f4f4; padding: 10px 20px; border-radius: 5px; border: 1px dashed #7367f0;">
-            ${otp}
-          </span>
-        </div>
-        <p>This OTP is valid for <strong>5 minutes</strong>. If you did not request this, please ignore this email.</p>
-        <hr style="border: 0; border-top: 1px solid #e0e0e0; margin: 20px 0;" />
-        <p style="font-size: 12px; color: #999; text-align: center;">
-          &copy; ${new Date().getFullYear()} Medify Hub Coaching Platform. All rights reserved.
-        </p>
-      </div>
-    `,
-  };
-
   try {
-    const currentTransporter = await getTransporter();
-    await currentTransporter.sendMail(mailOptions);
-    console.log(`[EMAIL SUCCESS] OTP sent to ${email}`);
+    const { type, client } = getEmailClient();
+    const subject = 'Your Login OTP for Medify Hub';
+    const htmlContent = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
+          <h2 style="color: #7367f0; text-align: center;">Medify Hub OTP Verification</h2>
+          <p>Hello <strong>${userName || 'Student'}</strong>,</p>
+          <p>You requested a login OTP for your Medify Hub account. Please use the 6-digit code below to proceed:</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #333; background: #f4f4f4; padding: 10px 20px; border-radius: 5px; border: 1px dashed #7367f0;">
+              ${otp}
+            </span>
+          </div>
+          <p>This OTP is valid for <strong>5 minutes</strong>. If you did not request this, please ignore this email.</p>
+          <hr style="border: 0; border-top: 1px solid #e0e0e0; margin: 20px 0;" />
+          <p style="font-size: 12px; color: #999; text-align: center;">
+            &copy; ${new Date().getFullYear()} Medify Hub Coaching Platform. All rights reserved.
+          </p>
+        </div>
+      `;
+
+    if (type === 'resend') {
+      console.log(`[EMAIL] Sending via Resend to ${email}...`);
+      const { data, error } = await client.emails.send({
+        from: 'Medify Hub <onboarding@resend.dev>',
+        to: email,
+        subject,
+        html: htmlContent,
+      });
+
+      if (error) throw new Error(`Resend Error: ${error.message}`);
+      console.log(`[EMAIL SUCCESS] Sent via Resend. ID: ${data.id}`);
+    } else {
+      console.log(`[EMAIL] Sending via Nodemailer to ${email}...`);
+      await client.sendMail({
+        from: `"Medify Hub" <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject,
+        html: htmlContent,
+      });
+      console.log(`[EMAIL SUCCESS] Sent via Nodemailer.`);
+    }
+
     return true;
   } catch (error) {
     console.error(`[EMAIL ERROR] Failed to send OTP to ${email}:`, error.message);
-    // Return the actual error message so the user can see it in Postman
     throw new Error(`Email failed: ${error.message}`);
   }
 };
+
+/**
+ * Verification function
+ */
+export const verifyConnection = async () => {
+  try {
+    const { type, client } = getEmailClient();
+    if (type === 'nodemailer') {
+      await client.verify();
+    }
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+
