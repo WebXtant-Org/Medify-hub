@@ -27,8 +27,13 @@ const getEmailClient = () => {
     console.log('[DEBUG EMAIL] Using Nodemailer with user:', user);
     if (!nodemailerTransporter) {
       nodemailerTransporter = nodemailer.createTransport({
-        service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false, // TLS
         auth: { user, pass },
+        tls: {
+          rejectUnauthorized: false
+        }
       });
       console.log('[EMAIL] Initialized Nodemailer (Gmail) fallback.');
     }
