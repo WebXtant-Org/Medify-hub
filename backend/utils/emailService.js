@@ -28,12 +28,12 @@ const getEmailClient = () => {
     if (!nodemailerTransporter) {
       nodemailerTransporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
-        port: 587,
-        secure: false, // TLS
+        port: 465,
+        secure: true, // SSL
         auth: { user, pass },
-        tls: {
-          rejectUnauthorized: false
-        }
+        connectionTimeout: 10000, // 10s
+        greetingTimeout: 10000,
+        socketTimeout: 10000,
       });
       console.log('[EMAIL] Initialized Nodemailer (Gmail) fallback.');
     }
