@@ -10,6 +10,7 @@ let nodemailerTransporter;
 const getEmailClient = () => {
   // Try Resend first
   const resendKey = process.env.RESEND_API_KEY;
+  console.log('[DEBUG EMAIL] Checking RESEND_API_KEY:', resendKey ? 'FOUND (Hidden)' : 'NOT FOUND');
   if (resendKey) {
     if (!resendClient) {
       resendClient = new Resend(resendKey);
@@ -23,6 +24,7 @@ const getEmailClient = () => {
   const pass = process.env.EMAIL_PASS;
 
   if (user && pass) {
+    console.log('[DEBUG EMAIL] Using Nodemailer with user:', user);
     if (!nodemailerTransporter) {
       nodemailerTransporter = nodemailer.createTransport({
         service: 'gmail',
