@@ -1,10 +1,11 @@
+import asyncHandler from 'express-async-handler';
 import Material from '../models/Material.js';
 import ActivityLog from '../models/ActivityLog.js';
 
 // @desc    Create study material
 // @route   POST /api/materials
 // @access  Private/Admin
-const createMaterial = async (req, res) => {
+const createMaterial = asyncHandler(async (req, res) => {
   const { title, description, type, courseId, assignedUserIds } = req.body;
 
   if (!req.file) {
@@ -33,12 +34,12 @@ const createMaterial = async (req, res) => {
     res.status(400);
     throw new Error('Invalid material data');
   }
-};
+});
 
 // @desc    Get materials (filtered for students or all for admin)
 // @route   GET /api/materials
 // @access  Private
-const getMaterials = async (req, res) => {
+const getMaterials = asyncHandler(async (req, res) => {
   let materials;
   if (req.user.role === 'admin') {
     materials = await Material.find({}).populate('courseId');
@@ -59,9 +60,9 @@ const getMaterials = async (req, res) => {
     });
   }
   res.json(materials);
-};
+});
 
-const updateMaterial = async (req, res) => {
+const updateMaterial = asyncHandler(async (req, res) => {
   const material = await Material.findById(req.params.id);
 
   if (material) {
@@ -88,9 +89,9 @@ const updateMaterial = async (req, res) => {
     res.status(404);
     throw new Error('Material not found');
   }
-};
+});
 
-const deleteMaterial = async (req, res) => {
+const deleteMaterial = asyncHandler(async (req, res) => {
   const material = await Material.findById(req.params.id);
 
   if (material) {
@@ -105,6 +106,6 @@ const deleteMaterial = async (req, res) => {
     res.status(404);
     throw new Error('Material not found');
   }
-};
+});
 
 export { createMaterial, getMaterials, updateMaterial, deleteMaterial };

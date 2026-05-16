@@ -18,9 +18,8 @@ const storage = new CloudinaryStorage({
     
     return {
       folder: 'medify_materials',
-      resource_type: isPDF ? 'image' : 'auto',
-      access_mode: 'public',
-      flags: isPDF ? 'attachment:false' : undefined
+      resource_type: 'auto',
+      access_mode: 'public'
     }
   }
 });
