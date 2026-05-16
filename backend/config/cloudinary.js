@@ -14,6 +14,7 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req, file) => {
+    console.log("CLOUDINARY UPLOAD STARTING for file:", file.originalname);
     const isPDF = file.mimetype === 'application/pdf' || file.originalname.endsWith('.pdf')
     
     return {
