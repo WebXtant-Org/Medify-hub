@@ -142,6 +142,15 @@ const StudentDialog = ({ open, handleClose, student, refreshData }) => {
   }, [open])
 
   useEffect(() => {
+    if (!student && open && batches.length > 0) {
+      const morning = batches.find(b => b.name?.toLowerCase().includes('morning'))
+      if (morning) {
+        setValue('batchId', morning._id)
+      }
+    }
+  }, [batches, student, open, setValue])
+
+  useEffect(() => {
     if (student && open) {
       reset({
         name: student.name || '',

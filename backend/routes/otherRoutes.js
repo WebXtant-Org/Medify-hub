@@ -4,7 +4,8 @@ import {
   markAttendance, getAttendance, 
   sendNotification, getNotifications,
   getGalleryItems, createGalleryItem, deleteGalleryItem,
-  getAchievers, createAchiever, deleteAchiever, updateAchiever
+  getAchievers, createAchiever, deleteAchiever, updateAchiever,
+  getPublicStats
 } from '../controllers/otherController.js';
 import { protect, admin } from '../middleware/auth.js';
 import { upload } from '../config/cloudinary.js';
@@ -38,5 +39,8 @@ router.get('/achievers', getAchievers);
 router.post('/achievers', protect, admin, upload.single('image'), createAchiever);
 router.put('/achievers/:id', protect, admin, upload.single('image'), updateAchiever);
 router.delete('/achievers/:id', protect, admin, deleteAchiever);
+
+// Public Stats
+router.get('/public-stats', getPublicStats);
 
 export default router;

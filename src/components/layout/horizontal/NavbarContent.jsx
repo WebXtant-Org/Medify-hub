@@ -53,7 +53,7 @@ const NavbarContent = () => {
       }
     }
 
-    if (user) fetchNotifications()
+    if (user && user.role !== 'admin') fetchNotifications()
   }, [user])
 
   return (
@@ -80,7 +80,7 @@ const NavbarContent = () => {
           </Typography>
         </div>
         <ModeDropdown />
-        <NotificationsDropdown notifications={notifications} />
+        {user?.role !== 'admin' && <NotificationsDropdown notifications={notifications} />}
         <UserDropdown />
         {/* Notification Dropdown, quick access menu dropdown, user dropdown will be placed here */}
       </div>

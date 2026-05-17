@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 import Link from 'next/link'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
@@ -34,6 +34,7 @@ import { useImageVariant } from '@core/hooks/useImageVariant'
 import { useSettings } from '@core/hooks/useSettings'
 
 import { showToast } from '@/utils/toast'
+import { apiClient } from '@/api/apiClient'
 
 
 // Styled Custom Components
@@ -109,6 +110,30 @@ const Login = ({ mode }) => {
   const [otp, setOtp] = useState('')
   const [resendTimer, setResendTimer] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
+
+  const [stats, setStats] = useState({
+    activeStudents: '0',
+    courseSuccess: '98%',
+    premiumCourses: '0',
+    placementSupport: '100%'
+  })
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const data = await apiClient('/public-stats')
+        setStats({
+          activeStudents: `${data.activeStudents || 0}`,
+          courseSuccess: `${data.courseSuccess || 98}%`,
+          premiumCourses: `${data.premiumCourses || 0}`,
+          placementSupport: `${data.placementSupport || 100}%`
+        })
+      } catch (err) {
+        console.error('Failed to fetch public stats:', err)
+      }
+    }
+    fetchStats()
+  }, [])
 
   // Vars
   const darkImg = '/images/pages/auth-mask-dark.png'
@@ -273,7 +298,7 @@ return
                   <div className='p-2 bg-primary/10 rounded-lg text-primary'>
                     <i className='tabler-users text-2xl' />
                   </div>
-                  <Typography variant='h5' className='font-bold'>1,200+</Typography>
+                  <Typography variant='h5' className='font-bold'>{stats.activeStudents}</Typography>
                   <Typography variant='body2' color='text.secondary'>Active Students</Typography>
                 </CardContent>
               </FloatingCard>
@@ -283,7 +308,7 @@ return
                   <div className='p-2 bg-success/10 rounded-lg text-success'>
                     <i className='tabler-certificate text-2xl' />
                   </div>
-                  <Typography variant='h5' className='font-bold'>98%</Typography>
+                  <Typography variant='h5' className='font-bold'>{stats.courseSuccess}</Typography>
                   <Typography variant='body2' color='text.secondary'>Course Success</Typography>
                 </CardContent>
               </FloatingCard>
@@ -295,7 +320,7 @@ return
                   <div className='p-2 bg-info/10 rounded-lg text-info'>
                     <i className='tabler-book text-2xl' />
                   </div>
-                  <Typography variant='h5' className='font-bold'>50+</Typography>
+                  <Typography variant='h5' className='font-bold'>{stats.premiumCourses}</Typography>
                   <Typography variant='body2' color='text.secondary'>Premium Courses</Typography>
                 </CardContent>
               </FloatingCard>
@@ -305,7 +330,7 @@ return
                   <div className='p-2 bg-warning/10 rounded-lg text-warning'>
                     <i className='tabler-device-laptop text-2xl' />
                   </div>
-                  <Typography variant='h5' className='font-bold'>100%</Typography>
+                  <Typography variant='h5' className='font-bold'>{stats.placementSupport}</Typography>
                   <Typography variant='body2' color='text.secondary'>Placement Support</Typography>
                 </CardContent>
               </FloatingCard>
@@ -409,7 +434,6 @@ return
                   <CustomTextField
                     fullWidth
                     label='Student ID'
-                    placeholder='MHHSBMCT001'
                     value={studentId}
                     onChange={e => setStudentId(e.target.value)}
                     autoFocus

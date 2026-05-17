@@ -5,6 +5,8 @@ import Notification from '../models/Notification.js';
 import ActivityLog from '../models/ActivityLog.js';
 import Gallery from '../models/Gallery.js';
 import Achiever from '../models/Achiever.js';
+import User from '../models/User.js';
+import Course from '../models/Course.js';
 
 // --- TEST CONTROLLERS ---
 export const createTest = async (req, res) => {
@@ -197,5 +199,22 @@ export const updateAchiever = async (req, res) => {
   } else {
     res.status(404);
     throw new Error('Achiever not found');
+  }
+};
+
+// --- PUBLIC LANDING PAGE STATS CONTROLLER ---
+export const getPublicStats = async (req, res) => {
+  try {
+    const studentCount = await User.countDocuments({ role: 'student' });
+    const courseCount = await Course.countDocuments();
+
+    res.json({
+      activeStudents: studentCount,
+      courseSuccess: 98,
+      premiumCourses: courseCount,
+      placementSupport: 100
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message || 'Server error' });
   }
 };
