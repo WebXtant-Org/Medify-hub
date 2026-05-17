@@ -75,9 +75,17 @@ const StudentDialog = ({ open, handleClose, student, refreshData }) => {
   const watchCourseId = watch('courseId')
 
   useEffect(() => {
-    if (!student && open && watchCourseId) {
+    if (open && watchCourseId) {
       const selectedCourse = courses.find(c => c._id === watchCourseId)
       if (!selectedCourse) return
+
+      const originalCourseId = student ? (student.courseIds?.[0]?._id || student.courseIds?.[0] || '') : ''
+      
+      // If we are in edit mode, and the course is the same as the student's original course, restore original ID
+      if (student && watchCourseId === originalCourseId) {
+        setValue('email', student.email)
+        return
+      }
 
       const courseTitle = selectedCourse.title || ''
       let courseCode = 'GEN'
@@ -103,11 +111,13 @@ const StudentDialog = ({ open, handleClose, student, refreshData }) => {
       const generatedId = `${prefix}${sequence}`
       setValue('email', generatedId)
 
-      // Generate Background Password
-      const year = new Date().getFullYear()
-      const cleanName = (watchName || 'STUDENT').toUpperCase().replace(/\s+/g, '')
-      const generatedPass = `${cleanName}@MH${year}`
-      setValue('password', generatedPass)
+      // Only generate background password for NEW students
+      if (!student) {
+        const year = new Date().getFullYear()
+        const cleanName = (watchName || 'STUDENT').toUpperCase().replace(/\s+/g, '')
+        const generatedPass = `${cleanName}@MH${year}`
+        setValue('password', generatedPass)
+      }
     }
   }, [watchName, watchCourseId, setValue, student, open, courses, allStudents])
 

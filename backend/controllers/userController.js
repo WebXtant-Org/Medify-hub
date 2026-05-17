@@ -165,10 +165,8 @@ const updateUser = asyncHandler(async (req, res) => {
     user.specialty = req.body.specialty || user.specialty;
     user.salary = req.body.salary || user.salary;
 
-    // Handle studentId if it was missing (e.g. for legacy users being updated to student)
-    if (user.role === 'student' && !user.studentId) {
-       const primaryCourseId = user.courseIds && user.courseIds.length > 0 ? user.courseIds[0] : null;
-       user.studentId = await generateStudentId(primaryCourseId);
+    if (user.role === 'student') {
+      user.studentId = req.body.email || user.studentId;
     }
 
     if (req.body.password) {
