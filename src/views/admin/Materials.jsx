@@ -11,6 +11,7 @@ import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 import MenuItem from '@mui/material/MenuItem'
 import IconButton from '@mui/material/IconButton'
+import Autocomplete from '@mui/material/Autocomplete'
 import { createColumnHelper, getCoreRowModel, useReactTable, getPaginationRowModel, getSortedRowModel, getFilteredRowModel } from '@tanstack/react-table'
 
 import { useAuth } from '@/contexts/AuthContext'
@@ -28,7 +29,7 @@ const Materials = () => {
   const [materialsList, setMaterialsList] = useState([])
   const [courses, setCourses] = useState([])
   const [globalFilter, setGlobalFilter] = useState('')
-  const [newMaterial, setNewMaterial] = useState({ title: '', description: '', type: 'PDF', courseId: '' })
+  const [newMaterial, setNewMaterial] = useState({ title: '', description: '', type: 'PDF', courseId: '', folder: '' })
   const [file, setFile] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isUploading, setIsUploading] = useState(false)
@@ -37,6 +38,17 @@ const Materials = () => {
   // Delete Dialog States
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const [materialToDelete, setMaterialToDelete] = useState(null)
+
+  const existingFolders = useMemo(() => {
+    if (!newMaterial.courseId) return []
+    const selectedCourseId = typeof newMaterial.courseId === 'object' ? newMaterial.courseId._id : newMaterial.courseId
+    const courseMaterials = materialsList.filter(m => {
+      const mCourseId = m.courseId?._id || m.courseId
+      return mCourseId === selectedCourseId
+    })
+    const folders = courseMaterials.map(m => m.folder || 'General')
+    return Array.from(new Set(folders)).filter(Boolean)
+  }, [materialsList, newMaterial.courseId])
 
   const fetchMaterials = useCallback(async () => {
     try {
@@ -76,6 +88,7 @@ const Materials = () => {
       formData.append('title', newMaterial.title)
       formData.append('description', newMaterial.description)
       formData.append('type', newMaterial.type)
+      formData.append('folder', newMaterial.folder || 'General')
       formData.append('courseId', newMaterial.courseId)
       if (file) formData.append('file', file)
 
@@ -87,7 +100,7 @@ const Materials = () => {
       } else {
         const res = await materialService.create(formData)
         setMaterialsList(prev => [...prev, res])
-        setNewMaterial({ title: '', description: '', type: 'PDF', courseId: '' })
+        setNewMaterial({ title: '', description: '', type: 'PDF', courseId: '', folder: '' })
         setFile(null)
         showToast('Material uploaded successfully!')
       }
@@ -104,14 +117,15 @@ const Materials = () => {
       title: material.title,
       description: material.description,
       type: material.type,
-      courseId: material.courseId?._id || material.courseId
+      courseId: material.courseId?._id || material.courseId,
+      folder: material.folder || 'General'
     })
     setFile(null)
   }
 
   const handleCancelEdit = () => {
     setSelectedMaterial(null)
-    setNewMaterial({ title: '', description: '', type: 'PDF', courseId: '' })
+    setNewMaterial({ title: '', description: '', type: 'PDF', courseId: '', folder: '' })
     setFile(null)
   }
 
@@ -171,6 +185,19 @@ const Materials = () => {
         </Typography>
       )
     }),
+    columnHelper.accessor('folder', {
+      header: 'Folder',
+      cell: ({ row }) => (
+        <Chip 
+          label={row.original.folder || 'General'} 
+          color='secondary' 
+          size='small' 
+          variant='tonal' 
+          icon={<i className='tabler-folder text-xs' />}
+          className='font-medium'
+        />
+      )
+    }),
     columnHelper.accessor('type', {
       header: 'Type',
       cell: ({ row }) => (
@@ -227,6 +254,28 @@ const Materials = () => {
                   label='Course'
                   placeholder='Select Course'
                   required
+                />
+                <Autocomplete
+                  freeSolo
+                  options={existingFolders}
+                  value={newMaterial.folder || ''}
+                  onChange={(event, newValue) => {
+                    setNewMaterial(prev => ({ ...prev, folder: newValue || '' }))
+                  }}
+                  onInputChange={(event, newInputValue) => {
+                    setNewMaterial(prev => ({ ...prev, folder: newInputValue || '' }))
+                  }}
+                  renderInput={(params) => (
+                    <CustomTextField
+                      {...params}
+                      label='Folder Name'
+                      placeholder='e.g., General, Unit 1, Reference Books'
+                      fullWidth
+                      slotProps={{
+                        inputLabel: { shrink: true }
+                      }}
+                    />
+                  )}
                 />
                 <CustomTextField
                   label='Description'

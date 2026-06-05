@@ -64,7 +64,7 @@ const Navbar = () => {
           <div className="navbar-left">
             <img src='/images/Institute Logo.jpeg' alt="Medify Hub Logo" className="navbar-logo" />
             <span className="navbar-title">
-              MEDIFY HUB HEALTHCARE SOLUTION
+              MEDIFY HUB HEALTHCARE SOLUTION<sup style={{ fontSize: '10px', marginLeft: '2px', verticalAlign: 'super' }}>™</sup>
             </span>
           </div>
 

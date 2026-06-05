@@ -12,7 +12,6 @@ import WhatWeOffer from '@/components/public/WhatWeOffer'
 import MissionVision from '@/components/public/MissionVision'
 import Footer from '@/components/public/Footer'
 import WhatsAppFloating from '@/components/public/WhatsAppFloating'
-import Certification from '@/components/public/Certification'
 
 const PublicPage = () => {
   return (
@@ -31,7 +30,6 @@ const PublicPage = () => {
       </div>
       <WhatWeOffer />
       <Gallery />
-      <Certification />
       <MissionVision />
       <div id="contact">
         <Footer />

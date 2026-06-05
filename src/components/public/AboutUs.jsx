@@ -20,7 +20,7 @@ const AboutUs = () => {
                     </p>
 
                     <p className="about-text">
-                        Medify Hub Healthcare Solution is a premier institute specializing in professional medical coding training and certification guidance, helping individuals build stable and rewarding careers in healthcare.
+                        Medify Hub Healthcare Solution™ is a premier institute specializing in professional medical coding training and certification guidance, helping individuals build stable and rewarding careers in healthcare.
                     </p>
                 </div>
 

@@ -18,6 +18,10 @@ const materialSchema = new mongoose.Schema(
       enum: ['PDF', 'Video', 'Document'],
       default: 'PDF',
     },
+    folder: {
+      type: String,
+      default: 'General',
+    },
     courseId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Course',

@@ -69,7 +69,7 @@ const HeroCarousel = () => {
             </h1>
 
             <p>
-              At Medify Hub Healthcare Solution, we are committed to shaping
+              At Medify Hub Healthcare Solution™, we are committed to shaping
               successful healthcare careers through world-class medical coding
               education.
             </p>

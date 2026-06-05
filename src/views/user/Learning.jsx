@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 
 import Grid from '@mui/material/Grid2'
@@ -46,6 +46,7 @@ const Learning = () => {
   const [materials, setMaterials] = useState([])
   const [groupedMaterials, setGroupedMaterials] = useState({})
   const [selectedCourse, setSelectedCourse] = useState(null)
+  const [selectedFolder, setSelectedFolder] = useState(null)
   const [loading, setLoading] = useState(true)
   
   // Search and Filter States
@@ -86,16 +87,53 @@ const Learning = () => {
     fetchMaterials()
   }, [])
 
+  const currentCourseMaterials = useMemo(() => {
+    if (!selectedCourse) return []
+    return materials.filter(m => (m.courseId?._id || 'other') === selectedCourse)
+  }, [materials, selectedCourse])
+
+  const foldersInCourse = useMemo(() => {
+    if (!selectedCourse) return []
+    
+    const folderGroup = currentCourseMaterials.reduce((acc, m) => {
+      const folderName = m.folder || 'General'
+      if (!acc[folderName]) {
+        acc[folderName] = []
+      }
+      acc[folderName].push(m)
+      return acc
+    }, {})
+
+    return Object.entries(folderGroup).map(([name, files]) => ({
+      name,
+      filesCount: files.length,
+      files
+    }))
+  }, [currentCourseMaterials, selectedCourse])
+
   const handleBack = () => {
-    setSelectedCourse(null)
+    if (selectedFolder) {
+      setSelectedFolder(null)
+    } else {
+      setSelectedCourse(null)
+    }
   }
 
-  // Master Filter: Matches both course selection, type filters, and search query
+  const handleBackToCourses = () => {
+    setSelectedCourse(null)
+    setSelectedFolder(null)
+  }
+
+  // Master Filter: Matches both course selection, type filters, folder selection, and search query
   const getFilteredMaterials = () => {
     let list = materials
     
     if (selectedCourse) {
       list = list.filter(m => (m.courseId?._id || 'other') === selectedCourse)
+    }
+
+    if (searchQuery.trim() === '' && selectedFolder) {
+      list = list.filter(m => (m.folder || 'General') === selectedFolder)
     }
     
     if (selectedType !== 'All') {
@@ -107,7 +145,8 @@ const Learning = () => {
       list = list.filter(m => 
         m.title.toLowerCase().includes(q) || 
         (m.description || '').toLowerCase().includes(q) ||
-        (m.courseId?.title || '').toLowerCase().includes(q)
+        (m.courseId?.title || '').toLowerCase().includes(q) ||
+        (m.folder || '').toLowerCase().includes(q)
       )
     }
     
@@ -303,15 +342,32 @@ const Learning = () => {
                     underline='hover'
                     color='inherit'
                     href='#'
-                    onClick={(e) => { e.preventDefault(); handleBack(); }}
+                    onClick={(e) => { e.preventDefault(); handleBackToCourses(); }}
                     className='flex items-center gap-1 text-xs'
                   >
                     <i className='tabler-book text-sm' />
                     Study Vault
                   </Link>
-                  <Typography sx={{ fontSize: '12px' }} color='text.primary'>
-                    {groupedMaterials[selectedCourse]?.title || 'Vault'}
-                  </Typography>
+                  {selectedFolder ? (
+                    <Link
+                      underline='hover'
+                      color='inherit'
+                      href='#'
+                      onClick={(e) => { e.preventDefault(); setSelectedFolder(null); }}
+                      className='flex items-center gap-1 text-xs'
+                    >
+                      {groupedMaterials[selectedCourse]?.title || 'Course'}
+                    </Link>
+                  ) : (
+                    <Typography sx={{ fontSize: '12px' }} color='text.primary'>
+                      {groupedMaterials[selectedCourse]?.title || 'Course'}
+                    </Typography>
+                  )}
+                  {selectedFolder && (
+                    <Typography sx={{ fontSize: '12px' }} color='text.primary'>
+                      {selectedFolder}
+                    </Typography>
+                  )}
                 </Breadcrumbs>
               )}
               
@@ -324,10 +380,16 @@ const Learning = () => {
                   )}
                   <div>
                     <Typography variant='h4' className='font-black leading-none mb-1'>
-                      {selectedCourse ? (groupedMaterials[selectedCourse]?.title || 'Materials') : 'Search Results'}
+                      {selectedCourse ? (
+                        selectedFolder ? `${groupedMaterials[selectedCourse]?.title || 'Materials'} - ${selectedFolder}` : (groupedMaterials[selectedCourse]?.title || 'Materials')
+                      ) : 'Search Results'}
                     </Typography>
                     <Typography variant='caption' color='text.secondary'>
-                      Found {filteredMaterials.length} materials matching filters
+                      {selectedCourse && !selectedFolder && searchQuery.trim() === '' ? (
+                        `Select a folder to view resources`
+                      ) : (
+                        `Found ${filteredMaterials.length} materials matching filters`
+                      )}
                     </Typography>
                   </div>
                 </Box>
@@ -346,81 +408,148 @@ const Learning = () => {
             </Box>
           </Grid>
 
-          {filteredMaterials.length === 0 ? (
-            <Grid size={{ xs: 12 }}>
-              <Card className='border border-white/5 shadow-xl bg-[#121420]/20'>
-                <CardContent className='flex flex-col items-center justify-center p-12 text-center'>
-                  <Avatar variant='rounded' className='bg-secondary/10 text-secondary bs-16 is-16 mb-4'>
-                    <i className='tabler-search-off text-4xl' />
-                  </Avatar>
-                  <Typography variant='h5' className='font-bold mb-1'>No Matching Resources</Typography>
-                  <Typography variant='body2' color='text.secondary'>No study material matched your active search query or type filters.</Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          ) : (
-            filteredMaterials.map((material) => {
-              const isPDF = material.type === 'PDF'
-              return (
-                <Grid size={{ xs: 12, sm: 6, md: 4 }} key={material._id}>
-                  <Card className='h-full flex flex-col hover:shadow-xl transition-all duration-300 border border-white/5 bg-[#121420]/30 rounded-2xl hover:bg-[#121420]/60 relative overflow-hidden'>
-                    <CardContent className='flex flex-col gap-4 flex-grow p-6 justify-between'>
-                      <div>
-                        {/* Material Card Top */}
-                        <div className='flex justify-between items-start mb-4'>
-                          <Avatar variant='rounded' className={`bs-12 is-12 border border-white/5 ${isPDF ? 'bg-error/10 text-error' : 'bg-primary/10 text-primary'}`}>
-                            <i className={isPDF ? 'tabler-file-type-pdf text-2xl' : 'tabler-player-play text-2xl'} />
+          {/* Render Folders Grid if course is selected, not searching, and no folder selected */}
+          {selectedCourse && !selectedFolder && searchQuery.trim() === '' ? (
+            foldersInCourse.length === 0 ? (
+              <Grid size={{ xs: 12 }}>
+                <Card className='border border-white/5 shadow-xl bg-[#121420]/20'>
+                  <CardContent className='flex flex-col items-center justify-center p-12 text-center'>
+                    <Avatar variant='rounded' className='bg-primary/10 text-primary bs-16 is-16 mb-4'>
+                      <i className='tabler-folder-off text-4xl' />
+                    </Avatar>
+                    <Typography variant='h5' className='font-bold mb-1'>No Folders Assigned</Typography>
+                    <Typography variant='body2' color='text.secondary'>You don't have any secure study folders registered in this course at the moment.</Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ) : (
+              foldersInCourse.map((folder) => {
+                const theme = getCourseTheme(groupedMaterials[selectedCourse]?.title || '')
+                return (
+                  <Grid size={{ xs: 12, sm: 6, md: 4 }} key={folder.name}>
+                    <Card 
+                      className={`h-full cursor-pointer transition-all duration-300 transform hover:-translate-y-2 border border-white/5 shadow-md bg-[#121420]/30 hover:bg-[#121420]/60 ${theme.border} ${theme.glow}`}
+                      onClick={() => setSelectedFolder(folder.name)}
+                    >
+                      <CardContent className='flex flex-col gap-5 p-6 h-full justify-between'>
+                        <Box className='flex justify-between items-center'>
+                          <Avatar variant='rounded' className={`${theme.badge} bs-14 is-14 border border-white/5`}>
+                            <i className='tabler-folder-open text-2xl' />
                           </Avatar>
                           <Chip 
-                            label={material.type} 
-                            size='small' 
-                            color={isPDF ? 'error' : 'primary'} 
+                            label={`${folder.filesCount} File${folder.filesCount > 1 ? 's' : ''}`}
+                            color='secondary' 
                             variant='tonal' 
-                            className='font-bold text-[9px] uppercase tracking-wider' 
+                            size='small' 
+                            className='font-bold text-[10px]'
+                            icon={<i className='tabler-file-description text-xs' />}
                           />
-                        </div>
-                        
-                        {/* Title & Info */}
-                        <Typography variant='h6' className='font-black leading-snug line-clamp-1 mb-2 text-white'>
-                          {material.title}
-                        </Typography>
-                        <Typography variant='body2' color='text.secondary' className='line-clamp-2 mb-4 text-xs leading-relaxed'>
-                          {material.description || 'No summary registered for this file.'}
-                        </Typography>
-                      </div>
-
-                      {/* Launch Vault footer block */}
-                      <Box className='mt-auto flex flex-col gap-3'>
-                        <Box className='flex items-center justify-between text-[10px] text-gray-500 font-mono pt-2 border-t border-white/5'>
-                          <span className='flex items-center gap-1'>
-                            <i className='tabler-calendar-event text-xs' />
-                            {new Date(material.createdAt).toLocaleDateString()}
-                          </span>
-                          <span className='text-gray-400 font-bold'>DRM-SECURE</span>
                         </Box>
                         
-                        <Button 
-                          variant='contained' 
-                          color='primary'
-                          fullWidth
-                          startIcon={<i className='tabler-shield-lock' />}
-                          onClick={() => router.push(`/dashboard/viewer?id=${material._id}`)}
-                          className='rounded-xl font-bold text-xs py-2 shadow-md hover:shadow-lg transition-all'
-                          sx={{
-                            background: 'linear-gradient(90deg, #6366f1 0%, #4f46e5 100%)',
-                            '&:hover': {
-                              boxShadow: '0 0 15px rgba(99,102,241,0.5)'
-                            }
-                          }}
-                        >
-                          Launch Secure Vault
-                        </Button>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              )
-            })
+                        <div>
+                          <Typography variant='h6' className='font-black line-clamp-2 leading-snug mb-1 text-white hover:text-primary transition-colors'>
+                            {folder.name}
+                          </Typography>
+                          <Typography variant='caption' color='text.secondary' className='line-clamp-2'>
+                            Explore secure materials in this folder.
+                          </Typography>
+                        </div>
+
+                        <Box className='flex justify-between items-center mt-2 pt-2 border-t border-white/5'>
+                          <span className='text-[10px] text-gray-500 uppercase tracking-widest font-mono font-bold'>DRM Secured</span>
+                          <Button 
+                            size='small'
+                            endIcon={<i className='tabler-chevron-right text-xs' />}
+                            onClick={(e) => { e.stopPropagation(); setSelectedFolder(folder.name); }}
+                            className='text-xs font-bold text-primary p-0 min-w-0 hover:bg-transparent'
+                          >
+                            Open Folder
+                          </Button>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                )
+              })
+            )
+          ) : (
+            /* Otherwise, render materials list (Level 3 or Search results) */
+            filteredMaterials.length === 0 ? (
+              <Grid size={{ xs: 12 }}>
+                <Card className='border border-white/5 shadow-xl bg-[#121420]/20'>
+                  <CardContent className='flex flex-col items-center justify-center p-12 text-center'>
+                    <Avatar variant='rounded' className='bg-secondary/10 text-secondary bs-16 is-16 mb-4'>
+                      <i className='tabler-search-off text-4xl' />
+                    </Avatar>
+                    <Typography variant='h5' className='font-bold mb-1'>No Matching Resources</Typography>
+                    <Typography variant='body2' color='text.secondary'>No study material matched your active search query or type filters.</Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ) : (
+              filteredMaterials.map((material) => {
+                const isPDF = material.type === 'PDF'
+                return (
+                  <Grid size={{ xs: 12, sm: 6, md: 4 }} key={material._id}>
+                    <Card className='h-full flex flex-col hover:shadow-xl transition-all duration-300 border border-white/5 bg-[#121420]/30 rounded-2xl hover:bg-[#121420]/60 relative overflow-hidden'>
+                      <CardContent className='flex flex-col gap-4 flex-grow p-6 justify-between'>
+                        <div>
+                          {/* Material Card Top */}
+                          <div className='flex justify-between items-start mb-4'>
+                            <Avatar variant='rounded' className={`bs-12 is-12 border border-white/5 ${isPDF ? 'bg-error/10 text-error' : 'bg-primary/10 text-primary'}`}>
+                              <i className={isPDF ? 'tabler-file-type-pdf text-2xl' : 'tabler-player-play text-2xl'} />
+                            </Avatar>
+                            <Chip 
+                              label={material.type} 
+                              size='small' 
+                              color={isPDF ? 'error' : 'primary'} 
+                              variant='tonal' 
+                              className='font-bold text-[9px] uppercase tracking-wider' 
+                            />
+                          </div>
+                          
+                          {/* Title & Info */}
+                          <Typography variant='h6' className='font-black leading-snug line-clamp-1 mb-2 text-white'>
+                            {material.title}
+                          </Typography>
+                          <Typography variant='body2' color='text.secondary' className='line-clamp-2 mb-4 text-xs leading-relaxed'>
+                            {material.description || 'No summary registered for this file.'}
+                          </Typography>
+                        </div>
+
+                        {/* Launch Vault footer block */}
+                        <Box className='mt-auto flex flex-col gap-3'>
+                          <Box className='flex items-center justify-between text-[10px] text-gray-500 font-mono pt-2 border-t border-white/5'>
+                            <span className='flex items-center gap-1'>
+                              <i className='tabler-calendar-event text-xs' />
+                              {new Date(material.createdAt).toLocaleDateString()}
+                            </span>
+                            <span className='text-gray-400 font-bold'>DRM-SECURE</span>
+                          </Box>
+                          
+                          <Button 
+                            variant='contained' 
+                            color='primary'
+                            fullWidth
+                            startIcon={<i className='tabler-shield-lock' />}
+                            onClick={() => router.push(`/dashboard/viewer?id=${material._id}`)}
+                            className='rounded-xl font-bold text-xs py-2 shadow-md hover:shadow-lg transition-all'
+                            sx={{
+                              background: 'linear-gradient(90deg, #6366f1 0%, #4f46e5 100%)',
+                              '&:hover': {
+                                boxShadow: '0 0 15px rgba(99,102,241,0.5)'
+                              }
+                            }}
+                          >
+                            Launch Secure Vault
+                          </Button>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                )
+              })
+            )
           )}
         </>
       )}

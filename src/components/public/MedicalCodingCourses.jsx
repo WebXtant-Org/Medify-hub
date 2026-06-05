@@ -35,7 +35,7 @@ const MedicalCodingCourses = () => {
             </div>
 
             <p className="mcc-subtitle">
-                Medify Hub Healthcare Solution delivers industry-ready medical coding training with expert mentors and real-time healthcare curriculum.
+                Medify Hub Healthcare Solution™ delivers industry-ready medical coding training with expert mentors and real-time healthcare curriculum.
             </p>
 
             {/* CARDS GRID */}

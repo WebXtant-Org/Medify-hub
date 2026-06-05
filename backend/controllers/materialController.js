@@ -6,7 +6,7 @@ import ActivityLog from '../models/ActivityLog.js';
 // @route   POST /api/materials
 // @access  Private/Admin
 const createMaterial = asyncHandler(async (req, res) => {
-  const { title, description, type, courseId, assignedUserIds } = req.body;
+  const { title, description, type, folder, courseId, assignedUserIds } = req.body;
 
   if (!req.file) {
     res.status(400);
@@ -18,6 +18,7 @@ const createMaterial = asyncHandler(async (req, res) => {
     description,
     fileUrl: req.file.path,
     type,
+    folder: folder || 'General',
     courseId,
     assignedUserIds: assignedUserIds ? JSON.parse(assignedUserIds) : []
   });
@@ -69,6 +70,7 @@ const updateMaterial = asyncHandler(async (req, res) => {
     material.title = req.body.title || material.title;
     material.description = req.body.description || material.description;
     material.type = req.body.type || material.type;
+    material.folder = req.body.folder || material.folder;
     material.courseId = req.body.courseId || material.courseId;
 
     if (req.file) {

@@ -45,7 +45,7 @@ const Footer = ({ mode }) => {
                   <Logo color='var(--mui-palette-common-white)' />
                 </Link>
                 <Typography color='white' className='md:max-is-[390px] opacity-[0.78]'>
-                  Medify Hub - The most comprehensive Coaching Management System for modern education centers.
+                  Medify Hub™ - The most comprehensive Coaching Management System for modern education centers.
                 </Typography>
                 <div className='flex items-end'>
                   <CustomTextField
@@ -173,7 +173,7 @@ const Footer = ({ mode }) => {
             <span>{`❤️`}</span>
             <span>{` by `}</span>
             <Link href='https://www.medifyhubhealthcaresolution.com' target='_blank' className='font-medium text-white'>
-              Medify Hub
+              Medify Hub™
             </Link>
           </Typography>
           <div className='flex gap-1.5 items-center'>

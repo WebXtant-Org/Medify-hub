@@ -140,7 +140,7 @@ const ProtectedViewer = ({ materialId, type, title }) => {
           {Array.from({ length: 12 }).map((_, i) => (
             <div key={i} className='transform -rotate-45 m-24 text-center pointer-events-none whitespace-nowrap'>
               <Typography variant='h2' className='font-black text-white' sx={{ fontSize: '3rem !important', letterSpacing: '4px' }}>
-                MEDIFY HUB
+                MEDIFY HUB™
               </Typography>
               <Typography variant='h6' className='text-white font-bold'>
                 {user?.name} | {user?.email}

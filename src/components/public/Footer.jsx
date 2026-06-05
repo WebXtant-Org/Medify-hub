@@ -11,9 +11,10 @@ const Footer = () => {
 
                 {/* Left Column: Brand */}
                 <div className="footer-col footer-brand">
-                    {/* Placeholder for Logo - Replaced with snake image logic or actual logo if available */}
-                    <img src="/images/Institute Logo.jpeg" alt="Medify Hub Logo" className="footer-logo" style={{ width: '100px', borderRadius: '50%', background: '#000', height: '100px', margin: '0 100px' }} />
-                    <h3 className="footer-company-name">MEDIFY HUB HEALTHCARE SOLUTION</h3>
+                    <img src="/images/Institute Logo.jpeg" alt="Medify Hub Logo" className="footer-logo" />
+                    <h3 className="footer-company-name">
+                        MEDIFY HUB HEALTHCARE SOLUTION<sup style={{ fontSize: '10px', marginLeft: '2px', verticalAlign: 'super' }}>™</sup>
+                    </h3>
                     <p className="footer-slogan">
                         "Precision, Passion, and<br />
                         Professionalism at Medify Hub"

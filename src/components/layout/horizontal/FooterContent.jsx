@@ -25,7 +25,7 @@ const FooterContent = () => {
         <span>{`❤️`}</span>
         <span className='text-textSecondary'>{` by `}</span>
         <Link href='https://www.medifyhubhealthcaresolution.com' target='_blank' className='text-primary uppercase'>
-          Medify Hub
+          Medify Hub™
         </Link>
       </p>
       {!isBreakpointReached && (
