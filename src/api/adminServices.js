@@ -78,6 +78,15 @@ export const materialService = {
   delete: (id) => apiClient(`/materials/${id}`, { method: 'DELETE' })
 }
 
+export const folderService = {
+  getAll: (courseId) => apiClient(courseId ? `/folders?courseId=${courseId}` : '/folders'),
+  create: (data) => apiClient('/folders', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  }),
+  delete: (id) => apiClient(`/folders/${id}`, { method: 'DELETE' })
+}
+
 export const galleryService = {
   getAll: () => apiClient('/gallery'),
   create: (formData) => apiClient('/gallery', { method: 'POST', body: formData }),

@@ -22,6 +22,10 @@ const materialSchema = new mongoose.Schema(
       type: String,
       default: 'General',
     },
+    folderId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'MaterialFolder',
+    },
     courseId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Course',

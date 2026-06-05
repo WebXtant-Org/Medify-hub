@@ -12,3 +12,11 @@ export const studentService = {
   getMaterials: () => apiClient('/materials'),
   getMaterialById: (id) => apiClient(`/materials/${id}`)
 }
+
+export const folderService = {
+  getAll: (courseId) => apiClient(courseId ? `/folders?courseId=${courseId}` : '/folders'),
+  create: (data) => apiClient('/folders', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  })
+}

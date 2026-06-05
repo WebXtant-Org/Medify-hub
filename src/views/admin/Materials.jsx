@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState, useCallback } from 'react'
+import { useMemo, useState, useCallback, useEffect } from 'react'
 
 import Grid from '@mui/material/Grid'
 import Card from '@mui/material/Card'
@@ -9,9 +9,12 @@ import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
-import MenuItem from '@mui/material/MenuItem'
 import IconButton from '@mui/material/IconButton'
-import Autocomplete from '@mui/material/Autocomplete'
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import DialogActions from '@mui/material/DialogActions'
+import Button from '@mui/material/Button'
 import { createColumnHelper, getCoreRowModel, useReactTable, getPaginationRowModel, getSortedRowModel, getFilteredRowModel } from '@tanstack/react-table'
 
 import { useAuth } from '@/contexts/AuthContext'
@@ -21,7 +24,7 @@ import { showToast } from '@/utils/toast'
 import DeleteConfirmationDialog from '@components/DeleteConfirmationDialog'
 import CustomTextField from '@core/components/mui/TextField'
 import CustomAutocomplete from '@components/CustomAutocomplete'
-import { materialService, courseService } from '@/api/adminServices'
+import { materialService, courseService, folderService } from '@/api/adminServices'
 
 const columnHelper = createColumnHelper()
 
@@ -29,26 +32,50 @@ const Materials = () => {
   const [materialsList, setMaterialsList] = useState([])
   const [courses, setCourses] = useState([])
   const [globalFilter, setGlobalFilter] = useState('')
-  const [newMaterial, setNewMaterial] = useState({ title: '', description: '', type: 'PDF', courseId: '', folder: '' })
+  const [newMaterial, setNewMaterial] = useState({ title: '', description: '', type: 'PDF', courseId: '', folderId: '' })
   const [file, setFile] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isUploading, setIsUploading] = useState(false)
   const [selectedMaterial, setSelectedMaterial] = useState(null)
   
+  // Folder States
+  const [folders, setFolders] = useState([])
+  const [foldersLoading, setFoldersLoading] = useState(false)
+  const [openFolderDialog, setOpenFolderDialog] = useState(false)
+  const [newFolderName, setNewFolderName] = useState('')
+  const [isCreatingFolder, setIsCreatingFolder] = useState(false)
+
   // Delete Dialog States
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const [materialToDelete, setMaterialToDelete] = useState(null)
 
-  const existingFolders = useMemo(() => {
-    if (!newMaterial.courseId) return []
-    const selectedCourseId = typeof newMaterial.courseId === 'object' ? newMaterial.courseId._id : newMaterial.courseId
-    const courseMaterials = materialsList.filter(m => {
-      const mCourseId = m.courseId?._id || m.courseId
-      return mCourseId === selectedCourseId
-    })
-    const folders = courseMaterials.map(m => m.folder || 'General')
-    return Array.from(new Set(folders)).filter(Boolean)
-  }, [materialsList, newMaterial.courseId])
+  // Delete Folder States
+  const [openFolderDeleteDialog, setOpenFolderDeleteDialog] = useState(false)
+  const [folderToDelete, setFolderToDelete] = useState(null)
+
+  // Fetch folders for the selected course
+  const fetchFolders = useCallback(async (courseId) => {
+    if (!courseId) {
+      setFolders([])
+      return
+    }
+    try {
+      setFoldersLoading(true)
+      const data = await folderService.getAll(courseId)
+      setFolders(data)
+    } catch (err) {
+      console.error('Failed to fetch folders:', err)
+      showToast('Failed to load folders for this course', 'error')
+    } finally {
+      setFoldersLoading(false)
+    }
+  }, [])
+
+  // Refetch folders when the selected course ID changes
+  useEffect(() => {
+    const courseId = typeof newMaterial.courseId === 'object' ? newMaterial.courseId?._id : newMaterial.courseId
+    fetchFolders(courseId)
+  }, [newMaterial.courseId, fetchFolders])
 
   const fetchMaterials = useCallback(async () => {
     try {
@@ -61,12 +88,13 @@ const Materials = () => {
       setCourses(coursesData)
     } catch (err) {
       console.error('Failed to fetch data:', err)
+      showToast('Failed to load materials and courses', 'error')
     } finally {
       setIsLoading(false)
     }
   }, [])
 
-  useMemo(() => {
+  useEffect(() => {
     fetchMaterials()
   }, [fetchMaterials])
 
@@ -77,8 +105,15 @@ const Materials = () => {
       return
     }
 
-    if (!newMaterial.courseId) {
+    const courseId = typeof newMaterial.courseId === 'object' ? newMaterial.courseId?._id : newMaterial.courseId
+    if (!courseId) {
       showToast('Please select a course', 'error')
+      return
+    }
+
+    const folderId = typeof newMaterial.folderId === 'object' ? newMaterial.folderId?._id : newMaterial.folderId
+    if (!folderId) {
+      showToast('Please select a folder', 'error')
       return
     }
 
@@ -88,19 +123,32 @@ const Materials = () => {
       formData.append('title', newMaterial.title)
       formData.append('description', newMaterial.description)
       formData.append('type', newMaterial.type)
-      formData.append('folder', newMaterial.folder || 'General')
-      formData.append('courseId', newMaterial.courseId)
+      formData.append('folderId', folderId)
+      formData.append('courseId', courseId)
       if (file) formData.append('file', file)
 
       if (selectedMaterial) {
         const res = await materialService.update(selectedMaterial._id, formData)
+        const oldFolderId = selectedMaterial.folderId?._id || selectedMaterial.folderId
+        
         setMaterialsList(prev => prev.map(m => m._id === res._id ? res : m))
+
+        if (oldFolderId && oldFolderId !== (res.folderId?._id || res.folderId)) {
+          const otherMaterialsInOldFolder = materialsList.filter(m => {
+            const mFolderId = m.folderId?._id || m.folderId
+            return mFolderId === oldFolderId && m._id !== selectedMaterial._id
+          })
+          if (otherMaterialsInOldFolder.length === 0) {
+            setFolders(prev => prev.filter(f => f._id !== oldFolderId))
+          }
+        }
+
         showToast('Material updated successfully!')
         handleCancelEdit()
       } else {
         const res = await materialService.create(formData)
         setMaterialsList(prev => [...prev, res])
-        setNewMaterial({ title: '', description: '', type: 'PDF', courseId: '', folder: '' })
+        setNewMaterial({ title: '', description: '', type: 'PDF', courseId: '', folderId: '' })
         setFile(null)
         showToast('Material uploaded successfully!')
       }
@@ -111,6 +159,37 @@ const Materials = () => {
     }
   }
 
+  const handleCreateFolder = async (e) => {
+    e.preventDefault()
+    if (!newFolderName.trim()) return
+
+    const courseId = typeof newMaterial.courseId === 'object' ? newMaterial.courseId?._id : newMaterial.courseId
+    if (!courseId) {
+      showToast('Please select a course first', 'error')
+      return
+    }
+
+    try {
+      setIsCreatingFolder(true)
+      const res = await folderService.create({
+        courseId,
+        folderName: newFolderName.trim()
+      })
+      
+      // Update local folders list and select the newly created folder
+      setFolders(prev => [...prev, res])
+      setNewMaterial(prev => ({ ...prev, folderId: res._id }))
+      
+      showToast('Folder created successfully!')
+      setOpenFolderDialog(false)
+      setNewFolderName('')
+    } catch (err) {
+      showToast(err.message || 'Failed to create folder', 'error')
+    } finally {
+      setIsCreatingFolder(false)
+    }
+  }
+
   const handleEdit = (material) => {
     setSelectedMaterial(material)
     setNewMaterial({
@@ -118,14 +197,14 @@ const Materials = () => {
       description: material.description,
       type: material.type,
       courseId: material.courseId?._id || material.courseId,
-      folder: material.folder || 'General'
+      folderId: material.folderId?._id || material.folderId || ''
     })
     setFile(null)
   }
 
   const handleCancelEdit = () => {
     setSelectedMaterial(null)
-    setNewMaterial({ title: '', description: '', type: 'PDF', courseId: '', folder: '' })
+    setNewMaterial({ title: '', description: '', type: 'PDF', courseId: '', folderId: '' })
     setFile(null)
   }
 
@@ -138,13 +217,61 @@ const Materials = () => {
     if (!materialToDelete) return
     
     try {
+      const materialObj = materialsList.find(m => m._id === materialToDelete)
       await materialService.delete(materialToDelete)
       setMaterialsList(prev => prev.filter(m => m._id !== materialToDelete))
+
+      if (materialObj && materialObj.folderId) {
+        const folderId = materialObj.folderId?._id || materialObj.folderId
+        const otherMaterialsInFolder = materialsList.filter(m => {
+          const mFolderId = m.folderId?._id || m.folderId
+          return mFolderId === folderId && m._id !== materialToDelete
+        })
+        if (otherMaterialsInFolder.length === 0) {
+          setFolders(prev => prev.filter(f => f._id !== folderId))
+          const currentFolderId = typeof newMaterial.folderId === 'object' ? newMaterial.folderId?._id : newMaterial.folderId
+          if (currentFolderId === folderId) {
+            setNewMaterial(prev => ({ ...prev, folderId: '' }))
+          }
+        }
+      }
+
       showToast('Material deleted', 'error', { icon: <i className='tabler-trash' /> })
       setOpenDeleteDialog(false)
       setMaterialToDelete(null)
     } catch (err) {
       showToast('Failed to delete material', 'error')
+    }
+  }
+
+  const handleDeleteFolderClick = (folder) => {
+    setFolderToDelete(folder)
+    setOpenFolderDeleteDialog(true)
+  }
+
+  const handleConfirmDeleteFolder = async () => {
+    if (!folderToDelete) return
+    
+    try {
+      await folderService.delete(folderToDelete._id)
+      setFolders(prev => prev.filter(f => f._id !== folderToDelete._id))
+      
+      const currentFolderId = typeof newMaterial.folderId === 'object' ? newMaterial.folderId?._id : newMaterial.folderId
+      if (currentFolderId === folderToDelete._id) {
+        setNewMaterial(prev => ({ ...prev, folderId: '' }))
+      }
+      
+      setMaterialsList(prev => prev.filter(m => {
+        const mFolderId = m.folderId?._id || m.folderId
+        return mFolderId !== folderToDelete._id
+      }))
+
+      showToast('Folder and associated materials deleted successfully!')
+      setOpenFolderDeleteDialog(false)
+      setFolderToDelete(null)
+    } catch (err) {
+      console.error(err)
+      showToast(err.message || 'Failed to delete folder', 'error')
     }
   }
 
@@ -189,7 +316,7 @@ const Materials = () => {
       header: 'Folder',
       cell: ({ row }) => (
         <Chip 
-          label={row.original.folder || 'General'} 
+          label={row.original.folderId?.folderName || row.original.folder || 'General'} 
           color='secondary' 
           size='small' 
           variant='tonal' 
@@ -205,7 +332,6 @@ const Materials = () => {
       )
     })
   ], [materialsList])
-
 
   const table = useReactTable({
     data: materialsList,
@@ -250,33 +376,65 @@ const Materials = () => {
                 <CustomAutocomplete
                   options={courses}
                   value={newMaterial.courseId}
-                  onChange={val => setNewMaterial({ ...newMaterial, courseId: val })}
+                  onChange={val => {
+                    setNewMaterial({ ...newMaterial, courseId: val, folderId: '' })
+                  }}
                   label='Course'
                   placeholder='Select Course'
                   required
                 />
-                <Autocomplete
-                  freeSolo
-                  options={existingFolders}
-                  value={newMaterial.folder || ''}
-                  onChange={(event, newValue) => {
-                    setNewMaterial(prev => ({ ...prev, folder: newValue || '' }))
-                  }}
-                  onInputChange={(event, newInputValue) => {
-                    setNewMaterial(prev => ({ ...prev, folder: newInputValue || '' }))
-                  }}
-                  renderInput={(params) => (
-                    <CustomTextField
-                      {...params}
-                      label='Folder Name'
-                      placeholder='e.g., General, Unit 1, Reference Books'
-                      fullWidth
-                      slotProps={{
-                        inputLabel: { shrink: true }
+                <Box className='flex gap-2 items-end w-full'>
+                  <Box className='flex-grow'>
+                    <CustomAutocomplete
+                      options={folders}
+                      value={newMaterial.folderId}
+                      onChange={val => setNewMaterial({ ...newMaterial, folderId: val })}
+                      label='Folder'
+                      placeholder={newMaterial.courseId ? 'Select Folder' : 'Please select course first'}
+                      getOptionLabel={(option) => typeof option === 'string' ? option : (option.folderName || '')}
+                      disabled={!newMaterial.courseId || foldersLoading}
+                      required
+                      renderOption={(props, option) => {
+                        const { key, ...optionProps } = props
+                        return (
+                          <li key={key} {...optionProps}>
+                            <Box style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                              <Typography variant='body2'>{option.folderName}</Typography>
+                              <IconButton
+                                size='small'
+                                color='error'
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleDeleteFolderClick(option)
+                                }}
+                                style={{ padding: '4px' }}
+                                title={`Delete ${option.folderName}`}
+                              >
+                                <i className='tabler-trash text-sm' />
+                              </IconButton>
+                            </Box>
+                          </li>
+                        )
                       }}
                     />
-                  )}
-                />
+                  </Box>
+                  <IconButton 
+                    color='primary' 
+                    onClick={() => {
+                      const courseId = typeof newMaterial.courseId === 'object' ? newMaterial.courseId?._id : newMaterial.courseId
+                      if (!courseId) {
+                        showToast('Please select a course first', 'warning')
+                        return
+                      }
+                      setOpenFolderDialog(true)
+                    }}
+                    disabled={!newMaterial.courseId}
+                    className='bg-primary/10 hover:bg-primary/20 rounded-xl p-2.5 mb-[3px] h-[38px] w-[38px] flex items-center justify-center'
+                    title='Create New Folder'
+                  >
+                    <i className='tabler-folder-plus text-lg' />
+                  </IconButton>
+                </Box>
                 <CustomTextField
                   label='Description'
                   fullWidth
@@ -323,6 +481,7 @@ const Materials = () => {
         </Grid>
       </Grid>
 
+      {/* Delete Dialogue */}
       <DeleteConfirmationDialog 
         open={openDeleteDialog}
         handleClose={() => setOpenDeleteDialog(false)}
@@ -330,6 +489,41 @@ const Materials = () => {
         title="Delete Material"
         message="Are you sure you want to delete this study material? This will remove access for all assigned students."
       />
+
+      {/* Delete Folder Dialogue */}
+      <DeleteConfirmationDialog 
+        open={openFolderDeleteDialog}
+        handleClose={() => setOpenFolderDeleteDialog(false)}
+        handleConfirm={handleConfirmDeleteFolder}
+        title="Delete Folder"
+        message="Are you sure you want to delete this folder? This will delete the folder AND all study materials inside it."
+      />
+
+      {/* Create Folder Dialogue */}
+      <Dialog open={openFolderDialog} onClose={() => setOpenFolderDialog(false)} maxWidth='xs' fullWidth>
+        <DialogTitle>Create New Folder</DialogTitle>
+        <form onSubmit={handleCreateFolder}>
+          <DialogContent>
+            <Box className='flex flex-col gap-4 pt-1'>
+              <CustomTextField
+                label='Folder Name'
+                fullWidth
+                value={newFolderName}
+                onChange={e => setNewFolderName(e.target.value)}
+                placeholder='e.g., CPC Mock Tests'
+                required
+                autoFocus
+              />
+            </Box>
+          </DialogContent>
+          <DialogActions className='pb-4 px-6'>
+            <Button onClick={() => setOpenFolderDialog(false)} color='secondary'>Cancel</Button>
+            <Button type='submit' variant='contained' disabled={isCreatingFolder}>
+              {isCreatingFolder ? 'Creating...' : 'Create'}
+            </Button>
+          </DialogActions>
+        </form>
+      </Dialog>
     </>
   )
 }

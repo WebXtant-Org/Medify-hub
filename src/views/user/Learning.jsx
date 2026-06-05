@@ -96,18 +96,22 @@ const Learning = () => {
     if (!selectedCourse) return []
     
     const folderGroup = currentCourseMaterials.reduce((acc, m) => {
-      const folderName = m.folder || 'General'
-      if (!acc[folderName]) {
-        acc[folderName] = []
+      const fId = m.folderId?._id || m.folderId || m.folder || 'General'
+      const fName = m.folderId?.folderName || m.folder || 'General'
+      if (!acc[fId]) {
+        acc[fId] = {
+          name: fName,
+          files: []
+        }
       }
-      acc[folderName].push(m)
+      acc[fId].files.push(m)
       return acc
     }, {})
 
-    return Object.entries(folderGroup).map(([name, files]) => ({
-      name,
-      filesCount: files.length,
-      files
+    return Object.values(folderGroup).map((folder) => ({
+      name: folder.name,
+      filesCount: folder.files.length,
+      files: folder.files
     }))
   }, [currentCourseMaterials, selectedCourse])
 
@@ -133,7 +137,7 @@ const Learning = () => {
     }
 
     if (searchQuery.trim() === '' && selectedFolder) {
-      list = list.filter(m => (m.folder || 'General') === selectedFolder)
+      list = list.filter(m => (m.folderId?.folderName || m.folder || 'General') === selectedFolder)
     }
     
     if (selectedType !== 'All') {
@@ -146,7 +150,7 @@ const Learning = () => {
         m.title.toLowerCase().includes(q) || 
         (m.description || '').toLowerCase().includes(q) ||
         (m.courseId?.title || '').toLowerCase().includes(q) ||
-        (m.folder || '').toLowerCase().includes(q)
+        (m.folderId?.folderName || m.folder || '').toLowerCase().includes(q)
       )
     }
     
