@@ -46,13 +46,11 @@ const CourseAssignmentDialog = ({ open, handleClose, course, refreshData }) => {
     }
   }, [course, open])
 
-  const handleToggle = (id) => {
-    setSelectedIds(prev => 
-      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
-    )
+  const handleToggle = id => {
+    setSelectedIds(prev => (prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]))
   }
 
-  const handleSelectAll = (e) => {
+  const handleSelectAll = e => {
     if (e.target.checked) {
       setSelectedIds(filteredStudents.map(s => s._id))
     } else {
@@ -74,26 +72,29 @@ const CourseAssignmentDialog = ({ open, handleClose, course, refreshData }) => {
     }
   }
 
-  const filteredStudents = students.filter(s => 
-    s.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    s.email?.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredStudents = students.filter(
+    s =>
+      s.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      s.email?.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
   return (
-    <Dialog 
-      open={open} 
-      onClose={handleClose} 
-      maxWidth='md' 
-      fullWidth 
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      maxWidth='md'
+      fullWidth
       scroll='body'
       PaperProps={{ sx: { overflow: 'visible' } }}
     >
       <DialogCloseButton onClick={handleClose} disableRipple>
         <i className='tabler-x' />
       </DialogCloseButton>
-      
+
       <DialogTitle sx={{ textAlign: 'center', pbe: 4 }}>
-        <Typography variant='h5' component='span'>Course Access Management</Typography>
+        <Typography variant='h5' component='span'>
+          Course Access Management
+        </Typography>
         <Typography variant='body2' color='text.secondary'>
           Assign which students can access <strong>{course?.title}</strong>
         </Typography>
@@ -114,12 +115,14 @@ const CourseAssignmentDialog = ({ open, handleClose, course, refreshData }) => {
           />
         </Box>
 
-        <TableContainer sx={{ border: '1px solid var(--mui-palette-divider)', borderRadius: '8px', maxHeight: '400px' }}>
+        <TableContainer
+          sx={{ border: '1px solid var(--mui-palette-divider)', borderRadius: '8px', maxHeight: '400px' }}
+        >
           <Table stickyHeader size='small'>
             <TableHead>
               <TableRow>
                 <TableCell padding='checkbox'>
-                  <Checkbox 
+                  <Checkbox
                     indeterminate={selectedIds.length > 0 && selectedIds.length < filteredStudents.length}
                     checked={filteredStudents.length > 0 && selectedIds.length === filteredStudents.length}
                     onChange={handleSelectAll}
@@ -131,13 +134,10 @@ const CourseAssignmentDialog = ({ open, handleClose, course, refreshData }) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredStudents.map((student) => (
+              {filteredStudents.map(student => (
                 <TableRow key={student._id} hover selected={selectedIds.includes(student._id)}>
                   <TableCell padding='checkbox'>
-                    <Checkbox 
-                      checked={selectedIds.includes(student._id)}
-                      onChange={() => handleToggle(student._id)}
-                    />
+                    <Checkbox checked={selectedIds.includes(student._id)} onChange={() => handleToggle(student._id)} />
                   </TableCell>
                   <TableCell>
                     <Typography variant='body2' color='text.primary' className='font-medium'>
@@ -151,14 +151,16 @@ const CourseAssignmentDialog = ({ open, handleClose, course, refreshData }) => {
               {filteredStudents.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={4} align='center' sx={{ py: 4 }}>
-                    <Typography variant='body2' color='text.secondary'>No students found</Typography>
+                    <Typography variant='body2' color='text.secondary'>
+                      No students found
+                    </Typography>
                   </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
         </TableContainer>
-        
+
         <Box sx={{ mt: 2, textAlign: 'right' }}>
           <Typography variant='caption' color='text.secondary'>
             {selectedIds.length} students selected for access
