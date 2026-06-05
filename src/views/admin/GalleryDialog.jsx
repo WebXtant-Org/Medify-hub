@@ -69,6 +69,12 @@ const GalleryDialog = ({ open, handleClose, refreshData }) => {
   const handleFileChange = (e) => {
     const file = e.target.files[0]
     if (file) {
+      const fileSizeInMB = file.size / (1024 * 1024)
+      if (fileSizeInMB > 10) {
+        showToast('File size must be less than 10 MB', 'error')
+        e.target.value = ''
+        return
+      }
       setSelectedFile(file)
     }
   }

@@ -208,6 +208,19 @@ const Materials = () => {
     setFile(null)
   }
 
+  const handleFileChange = e => {
+    const selectedFile = e.target.files[0]
+    if (selectedFile) {
+      const fileSizeInMB = selectedFile.size / (1024 * 1024)
+      if (fileSizeInMB > 10) {
+        showToast('File size must be less than 10 MB', 'error')
+        e.target.value = ''
+        return
+      }
+      setFile(selectedFile)
+    }
+  }
+
   const handleDeleteClick = (id) => {
     setMaterialToDelete(id)
     setOpenDeleteDialog(true)
@@ -447,7 +460,7 @@ const Materials = () => {
                 <Box>
                   <CustomButton variant='tonal' component='label' color='secondary' fullWidth disabled={isUploading}>
                     {file ? 'Change File' : 'Select File'}
-                    <input type='file' hidden onChange={e => setFile(e.target.files[0])} />
+                    <input type='file' hidden onChange={handleFileChange} />
                   </CustomButton>
                   {file && (
                     <Typography variant='caption' className='block mt-2 text-center'>
